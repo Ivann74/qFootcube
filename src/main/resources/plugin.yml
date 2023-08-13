@@ -1,0 +1,27 @@
+name: qFootcube
+version: '${project.version}'
+main: me.qajic.plugins.qfootcube.Footcube
+authors: [ qajic ]
+description: Minecraft Soccer Plugin
+api-version: 1.8
+commands:
+  cube:
+    description: spawns a ball, eh... cube
+  clearCubes:
+    description: removes all cubes
+  clearCube:
+    description: removes nearest cube
+  tc:
+    description: team-chat
+  footcube:
+    aliases: [fc]
+    description: main plugin command
+  commandDisabler:
+    aliases: [cd]
+    description: enable / disable commands in a match
+  spy:
+    description: enable / disable spying
+  reload:
+    description: Reloads messages config
+  test:
+    description: test
