@@ -104,6 +104,10 @@ public class GoalExplosion {
                 serbia(location, pl);
                 break;
             }
+            case "Spain": {
+                spain(location, pl);
+                break;
+            }
             default: {
                 break;
             }
@@ -198,6 +202,10 @@ public class GoalExplosion {
 
     public void serbia(Location location, Footcube pl) {
         File file = new File(pl.getDataFolder(), "images/serbia.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+    public void spain(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/spain.png");
         renderImage(file, location, pl, 64, 43);
     }
     public void helix(Location location) {

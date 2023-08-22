@@ -36,5 +36,26 @@ public class Banners {
 
         inv.setItem(slot, i);
     }
+    public void Spain(final Inventory inv, final int slot, final String name, final List lore) {
+        ItemStack i = new ItemStack(Material.BANNER, 1);
+        BannerMeta m = (BannerMeta)i.getItemMeta();
 
+        m.setBaseColor(DyeColor.YELLOW);
+
+        List<Pattern> patterns = new ArrayList<Pattern>();
+
+        patterns.add(new Pattern(DyeColor.BROWN, PatternType.STRIPE_MIDDLE));
+        patterns.add(new Pattern(DyeColor.YELLOW, PatternType.STRIPE_BOTTOM));
+        patterns.add(new Pattern(DyeColor.YELLOW, PatternType.TRIANGLE_TOP));
+        patterns.add(new Pattern(DyeColor.RED, PatternType.STRIPE_LEFT));
+        patterns.add(new Pattern(DyeColor.RED, PatternType.STRIPE_RIGHT));
+        m.setPatterns(patterns);
+
+        m.setDisplayName(name);
+        m.setLore(lore);
+
+        i.setItemMeta(m);
+
+        inv.setItem(slot, i);
+    }
 }

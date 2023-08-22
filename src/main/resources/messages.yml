@@ -150,6 +150,7 @@ disabledParticles: 'Particles disabled.'
 assistReward: '&7You''ve got &b$50 &7for assistment.'
 setLobby: '&7Match lobby has been set.'
 autoHitterUsage: "&7Use &f/fc autohitter &3[&bon&3/&boff&3]"
+tcUsage: "&7Use &f/tc &3[&bmessage&3]"
 autoAlreadyHitterOn: "&7Auto Hitter is already on."
 autoHitterOn: "&7Auto Hitter &a&nsuccessfully&r &7enabled."
 autoAlreadyHitterOff: "&7Auto Hitter is already off."

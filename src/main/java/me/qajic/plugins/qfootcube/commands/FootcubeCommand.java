@@ -81,6 +81,11 @@ public class FootcubeCommand implements CommandExecutor {
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.banners.Serbia(inv, 15, " §cSerbia", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")));
+        if(p.hasPermission("footcube.goalexplosions.spain") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.banners.Spain(inv, 20, " §6Spain", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")));
 
         p.openInventory(inv);
     }
@@ -174,24 +179,33 @@ public class FootcubeCommand implements CommandExecutor {
         } else {
             final Player p = (Player)sender;
             if (cmd.getName().equalsIgnoreCase("tc")) {
-                String message = "";
-                for (final String s : args) {
-                    message = message + s + " ";
-                }
-                Match[] matches2v2;
-                for (int length3 = (matches2v2 = this.plugin.organization.matches2v2).length, n = 0; n < length3; ++n) {
-                    final Match m = matches2v2[n];
-                    m.teamchat(p, message);
-                }
-                Match[] matches3v3;
-                for (int j = (matches3v3 = this.plugin.organization.matches3v3).length, k = 0; k < j; ++k) {
-                    final Match l = matches3v3[k];
-                    l.teamchat(p, message);
-                }
-                Match[] matches4v4;
-                for (int length5 = (matches4v4 = this.plugin.organization.matches4v4).length, n3 = 0; n3 < length5; ++n3) {
-                    final Match m2 = matches4v4[n3];
-                    m2.teamchat(p, message);
+                if(this.plugin.organization.playingPlayers.contains(p.getName())) {
+                    if(args.length<1)
+                        p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tcUsage")));
+                    else {
+                        String message = "";
+                        for (final String s : args) {
+                            message = message + s + " ";
+                        }
+
+                        int arena = this.plugin.organization.findArena(p);
+                        Match m = null;
+
+                        if (this.plugin.organization.matches2v2[arena].isRed.containsKey(p))
+                            m = this.plugin.organization.matches2v2[arena];
+                        else if (this.plugin.organization.matches3v3[arena].isRed.containsKey(p))
+                            m = this.plugin.organization.matches3v3[arena];
+                        else if (this.plugin.organization.matches4v4[arena].isRed.containsKey(p))
+                            m = this.plugin.organization.matches4v4[arena];
+
+                        if (m == null) {
+                            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
+                        }
+                        else
+                            m.teamchat(p, message);
+                    }
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
                 }
             }
             if(p.hasPermission("footcube.banned") && !p.hasPermission("footcube.admin")) {

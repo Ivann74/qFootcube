@@ -111,6 +111,21 @@ public class GoalExplosions implements Listener {
                 }
                 break;
             }
+            case " §6Spain": {
+                if(p.hasPermission("footcube.goalexplosions.spain") || p.hasPermission("footcube.goalexplosions.all")) {
+                    path.set("explosion", "Spain");
+                    try {
+                        path.save(userFile);
+                    } catch (IOException e2) {
+                        e2.printStackTrace();
+                    }
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
             case " §cDisable": {
                 path.set("explosion", "Disable");
                 try {

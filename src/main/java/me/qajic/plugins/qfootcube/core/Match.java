@@ -516,18 +516,12 @@ public class Match implements Listener
 
     public void teamchat(final Player p, final String message) {
         if (this.isRed.containsKey(p)) {
-            if (this.isRed.get(p)) {
-                Player[] redPlayers;
-                for (int length = (redPlayers = this.redPlayers).length, i = 0; i < length; ++i) {
-                    final Player player = redPlayers[i];
-                    player.sendMessage(ChatColor.RED + "TC " + ChatColor.AQUA + p.getName() + ChatColor.RED + " " + ChatColor.DARK_AQUA + message);
+            for(Player p1 : this.isRed.keySet()) {
+                if (this.isRed.get(p1) && this.isRed.get(p)) {
+                    p1.sendMessage((ChatColor.RED + "TC " + ChatColor.AQUA + p.getName() + ChatColor.RED + " " + ChatColor.DARK_AQUA + message));
                 }
-            }
-            else {
-                Player[] bluePlayers;
-                for (int length2 = (bluePlayers = this.bluePlayers).length, j = 0; j < length2; ++j) {
-                    final Player player = bluePlayers[j];
-                    player.sendMessage(ChatColor.BLUE + "TC " + ChatColor.AQUA + p.getName() + ChatColor.BLUE + " " + ChatColor.DARK_AQUA + message);
+                if (!this.isRed.get(p1) && !this.isRed.get(p)) {
+                    p1.sendMessage(ChatColor.BLUE + "TC " + ChatColor.AQUA + p.getName() + ChatColor.BLUE + " " + ChatColor.DARK_AQUA + message);
                 }
             }
         }
