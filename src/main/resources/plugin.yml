@@ -19,9 +19,5 @@ commands:
   commandDisabler:
     aliases: [cd]
     description: enable / disable commands in a match
-  spy:
-    description: enable / disable spying
   reload:
     description: Reloads messages config
-  test:
-    description: test

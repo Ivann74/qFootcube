@@ -1,7 +1,10 @@
 package me.qajic.plugins.qfootcube.features;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.Particle;
+import org.bson.Document;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -30,9 +33,6 @@ public class Particles implements Listener {
     @EventHandler
     public void invClick(final InventoryClickEvent e) {
         final Player p = (Player)e.getWhoClicked();
-        final UUID uuid = e.getWhoClicked().getUniqueId();
-        final File userFile = new File("plugins" + File.separator + "qFootcube" + File.separator + "/users/" + uuid + ".yml");
-        final FileConfiguration path = (FileConfiguration)YamlConfiguration.loadConfiguration(userFile);
         String effect = "";
         if (e.getCurrentItem().hasItemMeta()) {
             effect = e.getCurrentItem().getItemMeta().getDisplayName();
@@ -46,12 +46,7 @@ public class Particles implements Listener {
         switch (s4 = (s = effect)) {
             case " §cHearts": {
                 if(p.hasPermission("footcube.particles.hearts") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", (Object) "Hearts");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Hearts");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -61,13 +56,7 @@ public class Particles implements Listener {
                 break;
             }
             case " §cDisable": {
-                path.set("particles", "Disable");
-                try {
-                    path.save(userFile);
-                }
-                catch (IOException e2) {
-                    e2.printStackTrace();
-                }
+                this.plugin.organization.db.updateString("players", p.getName(), "particle", "Disable");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("disabledParticles").replace("{effect}", effect)));
                 p.closeInventory();
 
@@ -75,13 +64,7 @@ public class Particles implements Listener {
             }
             case " §aGreen": {
                 if(p.hasPermission("footcube.particles.green") || p.hasPermission("footcube.particles.all")) {
-
-                    path.set("particles", "Green");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Green");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -92,13 +75,7 @@ public class Particles implements Listener {
             }
             case " §6Flames": {
                 if(p.hasPermission("footcube.particles.flames") || p.hasPermission("footcube.particles.all")) {
-
-                    path.set("particles", "Flames");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Flames");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -109,13 +86,7 @@ public class Particles implements Listener {
             }
             case " §7Flakes": {
                 if(p.hasPermission("footcube.particles.flakes") || p.hasPermission("footcube.particles.all")) {
-
-                    path.set("particles", "Flakes");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Flakes");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -126,12 +97,7 @@ public class Particles implements Listener {
             }
             case " §fSparky": {
                 if(p.hasPermission("footcube.particles.sparky") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Sparky");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e3) {
-                        e3.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Sparky");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -142,12 +108,7 @@ public class Particles implements Listener {
             }
             case " §4Red": {
                 if(p.hasPermission("footcube.particles.red") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Red");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Red");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -158,12 +119,7 @@ public class Particles implements Listener {
             }
             case " §5Portal": {
                 if(p.hasPermission("footcube.particles.portal") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Portal");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Portal");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -174,12 +130,7 @@ public class Particles implements Listener {
             }
             case " §dSpell": {
                 if(p.hasPermission("footcube.particles.spell") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Spell");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Spell");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -190,12 +141,7 @@ public class Particles implements Listener {
             }
             case " §7Cloud": {
                 if(p.hasPermission("footcube.particles.cloud") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Cloud");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Cloud");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -206,12 +152,7 @@ public class Particles implements Listener {
             }
             case " §8Angry": {
                 if(p.hasPermission("footcube.particles.angry") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Angry");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Angry");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -222,12 +163,7 @@ public class Particles implements Listener {
             }
             case " §dNotes": {
                 if(p.hasPermission("footcube.particles.notes") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Notes");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Notes");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -238,12 +174,7 @@ public class Particles implements Listener {
             }
             case " §5Magic": {
                 if(p.hasPermission("footcube.particles.magic") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Magic");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Magic");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -254,12 +185,7 @@ public class Particles implements Listener {
             }
             case " §eDizzy": {
                 if(p.hasPermission("footcube.particles.dizzy") || p.hasPermission("footcube.particles.all")) {
-                    path.set("particles", "Dizzy");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e4) {
-                        e4.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Dizzy");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -275,19 +201,20 @@ public class Particles implements Listener {
 
     public void cubeEffect() {
         Collection<? extends Player> onlinePlayers;
-        for (int length = (onlinePlayers = (Collection<? extends Player>)this.plugin.getServer().getOnlinePlayers()).size(), k = 0; k < length; ++k) {
+        List<Document> docs = this.plugin.organization.playerDocuments;
+        for (int length = (onlinePlayers = this.plugin.getServer().getOnlinePlayers()).size(), k = 0; k < length; ++k) {
             final Player p = (Player)onlinePlayers.toArray()[k];
-            final UUID uuid = p.getUniqueId();
+            final Document doc = docs.stream()
+                    .filter(user -> p.getName().equals(user.getString("username")))
+                    .findAny()
+                    .orElse(null);
+            assert doc != null;
+            final String effect = doc.getString("particle");
             for (final Slime cube : this.plugin.cubes) {
-                if (!cube.isDead()) {
-                    final Location loc = cube.getLocation();
-                    final File userFile = new File("plugins" + File.separator + "qFootcube" + File.separator + "/users/" + uuid + ".yml");
-                    final FileConfiguration path = (FileConfiguration) YamlConfiguration.loadConfiguration(userFile);
-                    final String effect = path.getString("particles");
-                    final String s;
-                    final String s2;
-                    if (userFile.exists()) {
-                        switch (s2 = (s = effect)) {
+                if(cube != null) {
+                    if (!cube.isDead()) {
+                        final Location loc = cube.getLocation();
+                        switch (effect) {
                             case "Hearts": {
                                 final Particle hearts = new Particle(EnumParticle.HEART, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
                                 hearts.toPlayer(p);

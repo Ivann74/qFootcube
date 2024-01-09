@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class GoalExplosions implements Listener {
 
-    private Footcube plugin;
+    private final Footcube plugin;
     public String pluginString;
 
     public GoalExplosions(final Footcube instance) {
@@ -27,9 +27,6 @@ public class GoalExplosions implements Listener {
     @EventHandler
     public void invClick(final InventoryClickEvent e) {
         final Player p = (Player)e.getWhoClicked();
-        final UUID uuid = e.getWhoClicked().getUniqueId();
-        final File userFile = new File("plugins" + File.separator + "qFootcube" + File.separator + "/users/" + uuid + ".yml");
-        final FileConfiguration path = (FileConfiguration) YamlConfiguration.loadConfiguration(userFile);
         String explosion = "";
         if (e.getCurrentItem().hasItemMeta()) {
             explosion = e.getCurrentItem().getItemMeta().getDisplayName();
@@ -40,12 +37,7 @@ public class GoalExplosions implements Listener {
         e.setCancelled(true);
         switch (explosion) {
             case " §aDefault": {
-                path.set("explosion", "Default");
-                try {
-                    path.save(userFile);
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
+                this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Default");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                 p.closeInventory();
 
@@ -53,12 +45,7 @@ public class GoalExplosions implements Listener {
             }
             case " §7Helix": {
                 if(p.hasPermission("footcube.goalexplosions.helix") || p.hasPermission("footcube.goalexplosions.all")) {
-                    path.set("explosion", "Helix");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Helix");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -68,12 +55,7 @@ public class GoalExplosions implements Listener {
             }
             case " §cMeteor": {
                 if(p.hasPermission("footcube.goalexplosions.meteor") || p.hasPermission("footcube.goalexplosions.all")) {
-                    path.set("explosion", "Meteor");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Meteor");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -83,12 +65,7 @@ public class GoalExplosions implements Listener {
             }
             case " §6Poo": {
                 if(p.hasPermission("footcube.goalexplosions.poo") || p.hasPermission("footcube.goalexplosions.all")) {
-                    path.set("explosion", "Poo");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Poo");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -98,12 +75,7 @@ public class GoalExplosions implements Listener {
             }
             case " §cSerbia": {
                 if(p.hasPermission("footcube.goalexplosions.serbia") || p.hasPermission("footcube.goalexplosions.all")) {
-                    path.set("explosion", "Serbia");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Serbia");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -113,12 +85,7 @@ public class GoalExplosions implements Listener {
             }
             case " §6Spain": {
                 if(p.hasPermission("footcube.goalexplosions.spain") || p.hasPermission("footcube.goalexplosions.all")) {
-                    path.set("explosion", "Spain");
-                    try {
-                        path.save(userFile);
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
+                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Spain");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -127,13 +94,7 @@ public class GoalExplosions implements Listener {
                 break;
             }
             case " §cDisable": {
-                path.set("explosion", "Disable");
-                try {
-                    path.save(userFile);
-                }
-                catch (IOException e2) {
-                    e2.printStackTrace();
-                }
+                this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Disable");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("deactivatedExplosion")));
                 p.closeInventory();
 

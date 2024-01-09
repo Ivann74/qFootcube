@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.mongodb.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import me.qajic.plugins.qfootcube.commands.FootcubeCommand;
-import me.qajic.plugins.qfootcube.configuration.PapiConfig;
 import me.qajic.plugins.qfootcube.core.Organization;
 import me.qajic.plugins.qfootcube.features.*;
 import me.qajic.plugins.qfootcube.utils.*;
@@ -15,6 +18,7 @@ import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
 import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.apache.commons.io.FileUtils;
+import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -73,8 +77,8 @@ public final class Footcube extends JavaPlugin implements Listener
     GoalExplosions explosions;
     Particle particle;
     public ScoreboardLibrary scoreboardLibrary;
-
-
+    public MongoDatabase database;
+    public MongoClient mongoClient;
 
     public Footcube() {
         this.logger = Logger.getLogger("Minecraft");
@@ -114,6 +118,7 @@ public final class Footcube extends JavaPlugin implements Listener
         }
         this.scoreboardLibrary = scoreboardLibrary;
         this.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        this.connectToDatabase();
         this.organization = new Organization(this);
         this.setupLuckPermsAPI();
         this.lpHelper = new LuckPermsHelper(this);
@@ -127,14 +132,14 @@ public final class Footcube extends JavaPlugin implements Listener
                 Footcube.this.update();
                 Footcube.this.particles.cubeEffect();
             }
-        }, 0L, 0L);
+        }, 1L, 1L);
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion(this).register();
         }
-
         this.registerCommands();
         this.registerListeners();
     }
+
     private boolean setupLuckPermsAPI() {
         RegisteredServiceProvider<LuckPerms> lpp = getServer().getServicesManager().getRegistration(LuckPerms.class);
         if (lpp != null)
@@ -142,34 +147,40 @@ public final class Footcube extends JavaPlugin implements Listener
         return this.luckPermsAPI != null;
     }
 
-    public void registerConfigs() throws IOException {
+    private void registerConfigs() throws IOException {
+        this.saveResource("messages.yml", false);
+        this.saveResource("config.yml", false);
         FileConfiguration cfg = this.getConfig();
-        this.saveResource("messages.yml", true);
-        this.saveResource("papiConfig.yml", true);
-        cfg.set("afterMatchRespawn.1", 0.0);
-        cfg.set("afterMatchRespawn.2", 0.0);
-        cfg.set("afterMatchRespawn.3", 0.0);
         this.saveConfig();
         this.saveImages();
         MessagesConfig.create();
         MessagesConfig.save();
-        PapiConfig.create();
-        PapiConfig.save();
     }
-    public void saveImages() throws IOException {
+    private void saveImages() throws IOException {
         FileUtils.copyInputStreamToFile(this.getResource("poo.png"), new File("plugins/qFootcube/images/poo.png"));
         FileUtils.copyInputStreamToFile(this.getResource("serbia.png"), new File("plugins/qFootcube/images/serbia.png"));
         FileUtils.copyInputStreamToFile(this.getResource("spain.png"), new File("plugins/qFootcube/images/spain.png"));
     }
-    public void registerListeners() {
+    private void registerListeners() {
         final PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents((Listener)new Particles(this), (Plugin)this);
         pm.registerEvents((Listener)new GoalExplosions(this), (Plugin)this);
     }
 
-    public void registerCommands() {
+    private void registerCommands() {
         this.getCommand("footcube").setExecutor((CommandExecutor)new FootcubeCommand(this));
         this.getCommand("tc").setExecutor((CommandExecutor)new FootcubeCommand(this));
+    }
+
+    private void connectToDatabase() {
+        String connectionString = this.getConfig().getString("mongo-secret");
+        this.mongoClient = MongoClients.create(connectionString);
+        try {
+            this.database = this.mongoClient.getDatabase(this.getConfig().getString("mongo-database"));
+            this.getLogger().info("Successfully connected to database!");
+        } catch (MongoException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean onCommand(final CommandSender sender, final Command cmd, final String c, final String[] args) {
@@ -177,7 +188,7 @@ public final class Footcube extends JavaPlugin implements Listener
             return false;
         }
         final Player p = (Player)sender;
-        if (cmd.getName().equalsIgnoreCase("cube") && p.getWorld().getDifficulty() != Difficulty.PEACEFUL) {
+        if (cmd.getName().equalsIgnoreCase("cube") && p.getWorld().getDifficulty() != Difficulty.PEACEFUL && p.hasPermission("footcube.spawncube")) {
             final Location loc = p.getLocation().add(0.0, 1.0, 0.0);
             if (this.immuneMap.containsKey(p)) {
                 Bukkit.getScheduler().cancelTask(this.immuneMap.get(p).getTaskId());
@@ -196,14 +207,7 @@ public final class Footcube extends JavaPlugin implements Listener
             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("cubespawn")));
             return true;
         }
-        if (cmd.getName().equalsIgnoreCase("test") && p.getName().equalsIgnoreCase("qajic")) {
-            try {
-                (new GoalExplosion()).init(p.getLocation(), args[0], 1, this);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (cmd.getName().equalsIgnoreCase("clearCubes")) {
+        if (cmd.getName().equalsIgnoreCase("clearCubes") && p.hasPermission("footcube.clearcubes")) {
             int i = 0;
             for (final Slime cube : this.cubes) {
                 cube.setHealth(0.0);
@@ -213,7 +217,7 @@ public final class Footcube extends JavaPlugin implements Listener
             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("clearcubes")));
             return true;
         }
-        if (cmd.getName().equalsIgnoreCase("clearCube")) {
+        if (cmd.getName().equalsIgnoreCase("clearCube") && p.hasPermission("footcube.clearcube")) {
             final double distance = 20.0;
             for (final Slime cube2 : this.cubes) {
                 if (this.getDistance(cube2.getLocation(), p.getLocation()) < 20.0) {
@@ -280,7 +284,7 @@ public final class Footcube extends JavaPlugin implements Listener
         final Entity entity = e.getRightClicked();
         if (entity instanceof Slime && this.cubes.contains(entity) && !this.kicked.containsKey(e.getPlayer().getName()) && e.getPlayer().getGameMode() != GameMode.SPECTATOR && e.getPlayer().getGameMode() != GameMode.CREATIVE) {
             final Slime cube = (Slime)entity;
-            cube.setVelocity(cube.getVelocity().add(new Vector(0.0, 0.7, 0.0)));
+            cube.setVelocity(cube.getVelocity().add(new Vector(0.0D, 0.7D, 0.0D))); // RAJT KLIK
             cube.getWorld().playSound(cube.getLocation(), this.sound, 1.0f, 1.0f);
             this.kicked.put(e.getPlayer().getName(), System.currentTimeMillis());
             this.organization.ballTouch(e.getPlayer());
@@ -313,18 +317,18 @@ public final class Footcube extends JavaPlugin implements Listener
     @EventHandler
     public void onSlamSlime(final EntityDamageByEntityEvent e) {
         final Player p = (Player)e.getDamager();
-        final double power = this.speed.get(p.getName()) * 2.0 + 0.4;
         final int ping = ((CraftPlayer)p).getHandle().ping;
         final FileConfiguration cfg = this.getConfig();
-        double charge = 1.0;
+        double charge = 1.0D;
         boolean next;
+        Vector kick = new Vector();
         if(!this.shooting.containsKey(p.getName()))
             next = true;
         else
             next=this.shooting.get(p.getName());
 
         if (this.charges.containsKey(p.getName())) {
-            charge += this.charges.get(p.getName()) * 7.0;
+            charge += this.charges.get(p.getName()) * 7.0D;
         }
         if(e.getEntity() instanceof Slime && !this.cubes.contains(e.getEntity())) {
             ((Slime) e.getEntity()).setHealth(0.0);
@@ -357,16 +361,17 @@ public final class Footcube extends JavaPlugin implements Listener
                         }
                     }
                 }
+                double power = this.speed.get(p.getName()) * 2.0D + 0.4D;
                 if (charge <= 1.0) {
-                    final Vector kick = p.getLocation().getDirection().normalize().multiply(power * charge * (1.0 + 0.05 * cfg.getInt("uc_kickpower"))).setY(0.3);
-                    cube.setVelocity(cube.getVelocity().add(kick));
+                    kick = p.getLocation().getDirection().normalize().multiply(power * charge * (1.0D + 0.05D * cfg.getInt("uc_kickpower"))).setY(0.2D);
                     waitForShot(p);
                 }
                 else if (charge > 1.0) {
-                    final Vector kick = p.getLocation().getDirection().normalize().multiply(power * charge * (1.0 + 0.05 * cfg.getInt("kickpower"))).setY(0.3);
-                    cube.setVelocity(cube.getVelocity().add(kick));
+                    kick = p.getLocation().getDirection().normalize().multiply(power * charge * (1.0D + 0.05D * cfg.getInt("kickpower"))).setY(0.2D);
                     waitForShot(p);
                 }
+                Vector newVelocity = cube.getVelocity().add(kick);
+                cube.setVelocity(newVelocity);
                 cube.getWorld().playSound(cube.getLocation(), Sound.SLIME_WALK, 1.0f, 1.0f);
                 this.organization.ballTouch(p);
                 this.organization.tackle(p);
@@ -406,11 +411,11 @@ public final class Footcube extends JavaPlugin implements Listener
     }
 
     private double getDistance(final Location locA, final Location locB) {
-        locA.add(0.0, -1.0, 0.0);
+        locA.add(0.0D, -1.0D, 0.0D);
         final double dx = Math.abs(locA.getX() - locB.getX());
-        double dy = Math.abs(locA.getY() - locB.getY() - 0.25) - 1.25;
-        if (dy < 0.0) {
-            dy = 0.0;
+        double dy = Math.abs(locA.getY() - locB.getY() - 0.25D) - 1.25D;
+        if (dy < 0.0D) {
+            dy = 0.0D;
         }
         final double dz = Math.abs(locA.getZ() - locB.getZ());
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -429,125 +434,127 @@ public final class Footcube extends JavaPlugin implements Listener
         for (int length = (onlinePlayers = (Collection<? extends Player>)this.getServer().getOnlinePlayers()).size(), i = 0; i < length; ++i) {
             final Player p = (Player)onlinePlayers.toArray()[i];
             p.setHealth(20.0);
-            p.setSaturation(100.0f);
-            p.setExhaustion(20.0f);
+            p.setSaturation(100.0F);
+            p.setExhaustion(20.0F);
         }
         for (final String s2 : this.charges.keySet()) {
             final Player p2 = this.getServer().getPlayer(s2);
             final double charge = this.charges.get(s2);
-            final double nextCharge = 1.0 - (1.0 - charge) * (0.95 - cfg.getInt("charge") * 0.005); // ZA OVO CONFIG
+            final double nextCharge = 1.0D - (1.0D - charge) * (0.95D - cfg.getInt("charge") * 0.005D);
             this.charges.put(s2, nextCharge);
             p2.setExp((float)nextCharge);
         }
-        for (final Slime cube : this.cubes) {
-            if (cube != null) {
-                final UUID id = cube.getUniqueId();
-                Vector oldV = cube.getVelocity();
-                if (this.velocities.containsKey(id)) {
-                    oldV = this.velocities.get(id);
-                }
-                if (!cube.isDead()) {
-                    boolean sound = false;
-                    boolean kicked = false;
-                    final Vector newV = cube.getVelocity();
-                    Collection<? extends Player> onlinePlayers2;
-                    for (int length2 = (onlinePlayers2 = (Collection<? extends Player>) this.getServer().getOnlinePlayers()).size(), j = 0; j < length2; ++j) {
-                        final Player p3 = (Player) onlinePlayers2.toArray()[j];
-                        if (!this.immune.contains(p3) && p3.getGameMode() != GameMode.SPECTATOR && p3.getGameMode() != GameMode.CREATIVE) {
-                            final double delta = this.getDistance(cube.getLocation(), p3.getLocation());
-                            if (delta < 1.2) {
-                                if (delta < 0.8 && newV.length() > 0.5) {
-                                    newV.multiply(0.5 / newV.length());
-                                }
-                                final double power = this.speed.get(p3.getName()) / 3.0 + oldV.length() / 6.0;
-                                newV.add(p3.getLocation().getDirection().setY(0).normalize().multiply(power));
-                                this.organization.ballTouch(p3);
-                                kicked = true;
-                                if (power > 0.15) {
-                                    sound = true;
-                                }
-                            }
-                        }
+        if(!this.cubes.isEmpty())
+            for (final Slime cube : this.cubes) {
+                if (cube != null) {
+                    final UUID id = cube.getUniqueId();
+                    Vector oldV = cube.getVelocity();
+                    if (this.velocities.containsKey(id)) {
+                        oldV = this.velocities.get(id);
                     }
-                    if (newV.getX() == 0.0) {
-                        newV.setX(-oldV.getX() * 0.8);
-                        if (Math.abs(oldV.getX()) > 0.3) {
-                            sound = true;
-                        }
-                    } else if (!kicked && Math.abs(oldV.getX() - newV.getX()) < 0.1) {
-                        newV.setX(oldV.getX() * 0.98);
-                    }
-                    if (newV.getZ() == 0.0) {
-                        newV.setZ(-oldV.getZ() * 0.8);
-                        if (Math.abs(oldV.getZ()) > 0.3) {
-                            sound = true;
-                        }
-                    } else if (!kicked && Math.abs(oldV.getZ() - newV.getZ()) < 0.1) {
-                        newV.setZ(oldV.getZ() * 0.98);
-                    }
-                    if (newV.getY() < 0.0 && oldV.getY() < 0.0 && oldV.getY() < newV.getY() - 0.05) {
-                        newV.setY(-oldV.getY() * 0.8);
-                        if (Math.abs(oldV.getY()) > 0.3) {
-                            sound = true;
-                        }
-                    }
-                    if (sound) {
-                        cube.getWorld().playSound(cube.getLocation(), this.sound, 1.0f, 1.0f);
-                    }
-                    Collection<? extends Player> onlinePlayers3;
-                    for (int length3 = (onlinePlayers3 = (Collection<? extends Player>) this.getServer().getOnlinePlayers()).size(), k = 0; k < length3; ++k) {
-                        final Player p4 = (Player) onlinePlayers3.toArray()[k];
-                        final double delta2 = this.getDistance(cube.getLocation(), p4.getLocation());
-                        if (delta2 < newV.length() * 1.3) {
-                            final Vector loc = cube.getLocation().toVector();
-                            final Vector nextLoc = new Vector(loc.getX(), loc.getY(), loc.getZ()).add(newV);
-                            boolean rightDirection = true;
-                            final Vector pDir = new Vector(p4.getLocation().getX() - loc.getX(), 0.0, p4.getLocation().getZ() - loc.getZ());
-                            final Vector cDir = new Vector(newV.getX(), 0.0, newV.getZ()).normalize();
-                            int px = 1;
-                            if (pDir.getX() < 0.0) {
-                                px = -1;
-                            }
-                            int pz = 1;
-                            if (pDir.getZ() < 0.0) {
-                                pz = -1;
-                            }
-                            int cx = 1;
-                            if (cDir.getX() < 0.0) {
-                                cx = -1;
-                            }
-                            int cz = 1;
-                            if (cDir.getZ() < 0.0) {
-                                cz = -1;
-                            }
-                            if ((px != cx && pz != cz) || ((px != cx || pz != cz) && (cx * pDir.getX() <= cx * cz * px * cDir.getZ() || cz * pDir.getZ() <= cz * cx * pz * cDir.getX()))) {
-                                rightDirection = false;
-                            }
-                            if (rightDirection && loc.getY() < p4.getLocation().getY() + 2.0 && loc.getY() > p4.getLocation().getY() - 1.0 && nextLoc.getY() < p4.getLocation().getY() + 2.0 && nextLoc.getY() > p4.getLocation().getY() - 1.0) {
-                                final double a = newV.getZ() / newV.getX();
-                                final double b = loc.getZ() - a * loc.getX();
-                                final double c = p4.getLocation().getX();
-                                final double d = p4.getLocation().getZ();
-                                final double D = Math.abs(a * c - d + b) / Math.sqrt(a * a + 1.0);
-                                if (D < 0.8) {
-                                    newV.multiply(delta2 / newV.length());
+                    if (!cube.isDead()) {
+                        boolean sound = false;
+                        boolean kicked = false;
+                        final Vector newV = cube.getVelocity();
+                        Collection<? extends Player> onlinePlayers2;
+                        for (int length2 = (onlinePlayers2 = (Collection<? extends Player>) this.getServer().getOnlinePlayers()).size(), j = 0; j < length2; ++j) {
+                            final Player p3 = (Player) onlinePlayers2.toArray()[j];
+                            if (!this.immune.contains(p3) && p3.getGameMode() != GameMode.SPECTATOR && p3.getGameMode() != GameMode.CREATIVE) {
+                                final double delta = this.getDistance(cube.getLocation(), p3.getLocation());
+                                if (delta < 1.2D) {
+                                    if (delta < 0.8D && newV.length() > 0.5D) {
+                                        newV.multiply(0.5D / newV.length());
+                                    }
+                                    final double power = this.speed.get(p3.getName()) / 3.0D + oldV.length() / 6.0D;
+                                    newV.add(p3.getLocation().getDirection().setY(0).normalize().multiply(power));
+                                    this.organization.ballTouch(p3);
+                                    kicked = true;
+                                    if (power > 0.15D) {
+                                        sound = true;
+                                    }
                                 }
                             }
                         }
+                        if (newV.getX() == 0.0D) {
+                            newV.setX(-oldV.getX() * 0.8D);
+                            if (Math.abs(oldV.getX()) > 0.3D) {
+                                sound = true;
+                            }
+                        } else if (!kicked && Math.abs(oldV.getX() - newV.getX()) < 0.1D) {
+                            newV.setX(oldV.getX() * 0.98D);
+                        }
+                        if (newV.getZ() == 0.0D) {
+                            newV.setZ(-oldV.getZ() * 0.8D);
+                            if (Math.abs(oldV.getZ()) > 0.3D) {
+                                sound = true;
+                            }
+                        } else if (!kicked && Math.abs(oldV.getZ() - newV.getZ()) < 0.1D) {
+                            newV.setZ(oldV.getZ() * 0.98D);
+                        }
+                        if (newV.getY() < 0.0D && oldV.getY() < 0.0D && oldV.getY() < newV.getY() - 0.05D) {
+                            newV.setY(-oldV.getY() * 0.8D);
+                            if (Math.abs(oldV.getY()) > 0.3D) {
+                                sound = true;
+                            }
+                        }
+                        if (sound) {
+                            cube.getWorld().playSound(cube.getLocation(), this.sound, 1.0F, 1.0F);
+                        }
+                        Collection<? extends Player> onlinePlayers3;
+                        for (int length3 = (onlinePlayers3 = (Collection<? extends Player>) this.getServer().getOnlinePlayers()).size(), k = 0; k < length3; ++k) {
+                            final Player p4 = (Player) onlinePlayers3.toArray()[k];
+                            final double delta2 = this.getDistance(cube.getLocation(), p4.getLocation());
+                            if (delta2 < newV.length() * 1.3D) {
+                                final Vector loc = cube.getLocation().toVector();
+                                final Vector nextLoc = new Vector(loc.getX(), loc.getY(), loc.getZ()).add(newV);
+                                boolean rightDirection = true;
+                                final Vector pDir = new Vector(p4.getLocation().getX() - loc.getX(), 0.0D, p4.getLocation().getZ() - loc.getZ());
+                                final Vector cDir = new Vector(newV.getX(), 0.0D, newV.getZ()).normalize();
+                                int px = 1;
+                                if (pDir.getX() < 0.0D) {
+                                    px = -1;
+                                }
+                                int pz = 1;
+                                if (pDir.getZ() < 0.0D) {
+                                    pz = -1;
+                                }
+                                int cx = 1;
+                                if (cDir.getX() < 0.0D) {
+                                    cx = -1;
+                                }
+                                int cz = 1;
+                                if (cDir.getZ() < 0.0D) {
+                                    cz = -1;
+                                }
+                                if ((px != cx && pz != cz) || ((px != cx || pz != cz) && (cx * pDir.getX() <= cx * cz * px * cDir.getZ() || cz * pDir.getZ() <= cz * cx * pz * cDir.getX()))) {
+                                    rightDirection = false;
+                                }
+                                if (rightDirection && loc.getY() < p4.getLocation().getY() + 2.0D && loc.getY() > p4.getLocation().getY() - 1.0D && nextLoc.getY() < p4.getLocation().getY() + 2.0D && nextLoc.getY() > p4.getLocation().getY() - 1.0D) {
+                                    final double a = newV.getZ() / newV.getX();
+                                    final double b = loc.getZ() - a * loc.getX();
+                                    final double c = p4.getLocation().getX();
+                                    final double d = p4.getLocation().getZ();
+                                    final double D = Math.abs(a * c - d + b) / Math.sqrt(a * a + 1.0D);
+                                    if (D < 0.8D) {
+                                        newV.multiply(delta2 / newV.length());
+                                    }
+                                }
+                            }
+                        }
+                        cube.setMaxHealth(20.0);
+                        cube.setHealth(20.0);
+                        cube.setVelocity(newV);
+                        cube.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10, -3, true), true);
+                        cube.playEffect(EntityEffect.HURT);
+                        this.velocities.put(id, newV);
+                    } else {
+                        this.cubes.remove(cube);
+                        if (!this.organization.practiceBalls.contains(cube)) {
+                            continue;
+                        }
+                        this.organization.practiceBalls.remove(cube);
                     }
-                    cube.setMaxHealth(20.0);
-                    cube.setHealth(20.0);
-                    cube.setVelocity(newV);
-                    cube.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10, -3, true), true);
-                    this.velocities.put(id, newV);
-                } else {
-                    this.cubes.remove(cube);
-                    if (!this.organization.practiceBalls.contains(cube)) {
-                        continue;
-                    }
-                    this.organization.practiceBalls.remove(cube);
                 }
             }
-        }
     }
 }

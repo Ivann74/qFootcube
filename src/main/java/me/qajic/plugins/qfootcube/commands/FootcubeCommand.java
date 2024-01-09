@@ -15,6 +15,7 @@ import net.luckperms.api.node.types.MetaNode;
 import net.luckperms.api.node.types.PermissionNode;
 import net.luckperms.api.node.types.WeightNode;
 import org.apache.commons.lang.StringUtils;
+import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,7 +26,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -197,6 +197,8 @@ public class FootcubeCommand implements CommandExecutor {
                             m = this.plugin.organization.matches3v3[arena];
                         else if (this.plugin.organization.matches4v4[arena].isRed.containsKey(p))
                             m = this.plugin.organization.matches4v4[arena];
+                        else if (this.plugin.organization.matches5v5[arena].isRed.containsKey(p))
+                            m = this.plugin.organization.matches5v5[arena];
 
                         if (m == null) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
@@ -217,7 +219,7 @@ public class FootcubeCommand implements CommandExecutor {
                     boolean success = true;
                     if (args.length < 1) {
                         success = false;
-                    } else if (args[0].equalsIgnoreCase("goalexplosions") || args[0].equalsIgnoreCase("ge")) {
+                    } else if ((args[0].equalsIgnoreCase("goalexplosions") || args[0].equalsIgnoreCase("ge")) && p.hasPermission("footcube.goalexplosions.gui")) {
                         this.explosionInventory(p);
                     } else if (args[0].equalsIgnoreCase("particles") || args[0].equalsIgnoreCase("p")) {
                         this.particleInventory(p);
@@ -501,6 +503,28 @@ public class FootcubeCommand implements CommandExecutor {
                             }
                         }
                     }
+                    else if ((args[0].equalsIgnoreCase("setchargespeed") || args[0].equalsIgnoreCase("setch")) && p.hasPermission("footcube.admin")) {
+                        final FileConfiguration cfg = this.plugin.getConfig();
+                        Boolean valid = true;
+                        if (args.length < 2) {
+                            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("setchError"))));
+                        } else {
+                            try {
+                                Double.parseDouble(args[1]);
+                            } catch (NumberFormatException nfe) {
+                                valid = false;
+                            }
+                            if (valid) {
+                                Double ch = Double.parseDouble(args[1]);
+                                cfg.set("charge", ch);
+                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("setchSuccess"))).replace("{charge}", "" + ch));
+                                this.plugin.saveConfig();
+                                this.plugin.reloadConfig();
+                            } else {
+                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("setchError"))));
+                            }
+                        }
+                    }
                     else if ((args[0].equalsIgnoreCase("setkickpower") || args[0].equalsIgnoreCase("setkp")) && p.hasPermission("footcube.admin")) {
                         final FileConfiguration cfg = this.plugin.getConfig();
                         Boolean valid = true;
@@ -522,6 +546,18 @@ public class FootcubeCommand implements CommandExecutor {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("setkpError"))));
                             }
                         }
+                    } else if ((args[0].equalsIgnoreCase("setscoremessage") || args[0].equalsIgnoreCase("setsm")) && p.hasPermission("footcube.donator")) {
+                        final String message = StringUtils.join(args, ' ', 1, args.length);
+                        if(args.length < 2 || message.length() <= 0) {
+                            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("messageNotSpecified"))));
+                        } else {
+                            if(message.length() > 30) {
+                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("messageTooLong"))));
+                            } else {
+                                this.plugin.organization.db.updateString("players", p.getName(), "custom-score-message", message);
+                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("messageSuccess"))));
+                            }
+                        }
                     } else if (args[0].equalsIgnoreCase("forcestart") && p.hasPermission("footcube.admin")) {
                         if (args.length < 2) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("arenaNotSpecified"))));
@@ -529,26 +565,32 @@ public class FootcubeCommand implements CommandExecutor {
                         } else if (args[1].equalsIgnoreCase("1v1")) {
                             p.setFlying(false);
                             p.setAllowFlight(false);
-                            this.plugin.organization.matches1v1[this.plugin.organization.lobby1v1].join(p, false, false);
+                            this.plugin.organization.matches1v1[this.plugin.organization.lobby1v1].join(p);
                             this.plugin.organization.waitingPlayers.put(p.getName(), 1);
                             this.plugin.organization.removeTeam(p);
                         } else if (args[1].equalsIgnoreCase("2v2")) {
                             p.setFlying(false);
                             p.setAllowFlight(false);
-                            this.plugin.organization.matches2v2[this.plugin.organization.lobby2v2].join(p, false, false);
+                            this.plugin.organization.matches2v2[this.plugin.organization.lobby2v2].join(p);
                             this.plugin.organization.waitingPlayers.put(p.getName(), 2);
                             this.plugin.organization.removeTeam(p);
                         } else if (args[1].equalsIgnoreCase("3v3")) {
                             p.setFlying(false);
                             p.setAllowFlight(false);
-                            this.plugin.organization.matches3v3[this.plugin.organization.lobby3v3].join(p, false, false);
+                            this.plugin.organization.matches3v3[this.plugin.organization.lobby3v3].join(p);
                             this.plugin.organization.waitingPlayers.put(p.getName(), 3);
                             this.plugin.organization.removeTeam(p);
                         } else if (args[1].equalsIgnoreCase("4v4")) {
                             p.setFlying(false);
                             p.setAllowFlight(false);
-                            this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].join(p, false, false);
+                            this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].join(p);
                             this.plugin.organization.waitingPlayers.put(p.getName(), 4);
+                            this.plugin.organization.removeTeam(p);
+                        } else if (args[1].equalsIgnoreCase("5v5")) {
+                            p.setFlying(false);
+                            p.setAllowFlight(false);
+                            this.plugin.organization.matches5v5[this.plugin.organization.lobby5v5].join(p);
+                            this.plugin.organization.waitingPlayers.put(p.getName(), 5);
                             this.plugin.organization.removeTeam(p);
                         } else {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("invalidArenaTypeFS")));
@@ -572,7 +614,7 @@ public class FootcubeCommand implements CommandExecutor {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("no1v1")));
                             } else {
                                 p.setFlying(false);
-                                this.plugin.organization.matches1v1[this.plugin.organization.lobby1v1].join(p, false, false);
+                                this.plugin.organization.matches1v1[this.plugin.organization.lobby1v1].join(p);
                                 this.plugin.organization.waitingPlayers.put(p.getName(), 1);
                                 this.plugin.organization.removeTeam(p);
                             }
@@ -581,7 +623,7 @@ public class FootcubeCommand implements CommandExecutor {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("no2v2")));
                             } else {
                                 p.setFlying(false);
-                                this.plugin.organization.matches2v2[this.plugin.organization.lobby2v2].join(p, false, false);
+                                this.plugin.organization.matches2v2[this.plugin.organization.lobby2v2].join(p);
                                 this.plugin.organization.waitingPlayers.put(p.getName(), 2);
                                 this.plugin.organization.removeTeam(p);
                             }
@@ -590,7 +632,7 @@ public class FootcubeCommand implements CommandExecutor {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("no3v3")));
                             } else {
                                 p.setFlying(false);
-                                this.plugin.organization.matches3v3[this.plugin.organization.lobby3v3].join(p, false, false);
+                                this.plugin.organization.matches3v3[this.plugin.organization.lobby3v3].join(p);
                                 this.plugin.organization.waitingPlayers.put(p.getName(), 3);
                                 this.plugin.organization.removeTeam(p);
                             }
@@ -599,15 +641,60 @@ public class FootcubeCommand implements CommandExecutor {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("no4v4")));
                             } else {
                                 p.setFlying(false);
-                                this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].join(p, false, false);
+                                this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].join(p);
                                 this.plugin.organization.waitingPlayers.put(p.getName(), 4);
+                                this.plugin.organization.removeTeam(p);
+                            }
+                        } else if (args[1].equalsIgnoreCase("5v5")) {
+                            if (this.plugin.getConfig().getInt("arenas.5v5.amount") == 0) {
+                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("no5v5")));
+                            } else {
+                                p.setFlying(false);
+                                this.plugin.organization.matches5v5[this.plugin.organization.lobby5v5].join(p);
+                                this.plugin.organization.waitingPlayers.put(p.getName(), 5);
                                 this.plugin.organization.removeTeam(p);
                             }
                         } else {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("specifyArena")));
                         }
                     } else if (args[0].equalsIgnoreCase("best")) {
-                        this.plugin.organization.updateHighscores(p);
+                        List<String> highscore = MessagesConfig.get().getStringList("highscore");
+                        List<Document> goals = this.plugin.organization.hs_goals;
+                        List<Document> assists = this.plugin.organization.hs_assists;
+                        List<Document> wins = this.plugin.organization.hs_wins;
+                        List<Document> winstreak = this.plugin.organization.hs_winstreak;
+
+                        for (String e : highscore) {
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
+                                    .replace("{first_goals}", goals.get(0).getString("username"))
+                                    .replace("{first_goals_count}", ""+(int)goals.get(0).get("goals"))
+                                    .replace("{second_goals}", goals.get(1).getString("username"))
+                                    .replace("{second_goals_count}", ""+(int)goals.get(1).get("goals"))
+                                    .replace("{third_goals}", goals.get(2).getString("username"))
+                                    .replace("{third_goals_count}", ""+(int)goals.get(2).get("goals"))
+
+                                    .replace("{first_assists}", assists.get(0).getString("username"))
+                                    .replace("{first_assists_count}", ""+(int)assists.get(0).get("assists"))
+                                    .replace("{second_assists}", assists.get(1).getString("username"))
+                                    .replace("{second_assists_count}", ""+(int)assists.get(1).get("assists"))
+                                    .replace("{third_assists}", assists.get(2).getString("username"))
+                                    .replace("{third_assists_count}", ""+(int)assists.get(2).get("assists"))
+
+                                    .replace("{first_wins}", wins.get(0).getString("username"))
+                                    .replace("{first_wins_count}", ""+(int)wins.get(0).get("wins"))
+                                    .replace("{second_wins}", wins.get(1).getString("username"))
+                                    .replace("{second_wins_count}", ""+(int)wins.get(1).get("wins"))
+                                    .replace("{third_wins}", wins.get(2).getString("username"))
+                                    .replace("{third_wins_count}", ""+(int)wins.get(2).get("wins"))
+
+                                    .replace("{first_win_streak}", winstreak.get(0).getString("username"))
+                                    .replace("{first_win_streak_count}", ""+(int)winstreak.get(0).get("best_win_streak"))
+                                    .replace("{second_win_streak}", winstreak.get(1).getString("username"))
+                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).get("best_win_streak"))
+                                    .replace("{third_win_streak}", winstreak.get(2).getString("username"))
+                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).get("best_win_streak"))
+                            );
+                        }
                     } else if (args[0].equalsIgnoreCase("team")) {
                         if (args.length < 2) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamNoArgs")));
@@ -696,10 +783,22 @@ public class FootcubeCommand implements CommandExecutor {
                                         p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamed").replace("{player}", player.getName())));
                                         player.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamed").replace("{player}", p.getName())));
                                     }
-                                } else {
+                                } else if (this.plugin.organization.teamType.get(player) == 4) {
                                     this.plugin.organization.waitingPlayers.put(p.getName(), 4);
                                     this.plugin.organization.waitingPlayers.put(player.getName(), 4);
                                     if (!this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].team(p, player)) {
+                                        this.plugin.organization.waitingPlayers.remove(p.getName());
+                                        this.plugin.organization.waitingPlayers.remove(player.getName());
+                                        this.plugin.organization.waitingTeams = this.plugin.organization.extendArray(this.plugin.organization.waitingTeams, new Player[]{p, player});
+                                        this.plugin.organization.waitingTeamPlayers.add(p);
+                                        this.plugin.organization.waitingTeamPlayers.add(player);
+                                        p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamed").replace("{player}", player.getName())));
+                                        player.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamed").replace("{player}", p.getName())));
+                                    }
+                                } else {
+                                    this.plugin.organization.waitingPlayers.put(p.getName(), 5);
+                                    this.plugin.organization.waitingPlayers.put(player.getName(), 5);
+                                    if (!this.plugin.organization.matches5v5[this.plugin.organization.lobby5v5].team(p, player)) {
                                         this.plugin.organization.waitingPlayers.remove(p.getName());
                                         this.plugin.organization.waitingPlayers.remove(player.getName());
                                         this.plugin.organization.waitingTeams = this.plugin.organization.extendArray(this.plugin.organization.waitingTeams, new Player[]{p, player});
@@ -749,34 +848,11 @@ public class FootcubeCommand implements CommandExecutor {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("noTkp")));
                         }
                     } else if (args[0].equalsIgnoreCase("stats")) {
-                        if (args.length > 1) {
-                            if (this.plugin.organization.uuidConverter.hasValue(args[1])) {
-                                final String uuid = this.plugin.organization.uuidConverter.getKey(args[1]);
-                                this.plugin.organization.checkStats(uuid, p);
-                            } else {
-                                p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("playerNoStats").replace("{player}", args[1])));
-                                this.plugin.organization.checkStats(p.getUniqueId().toString(), p);
-                            }
+                        if (args.length>1) {
+                            String username = (args[1].length()<=0 ? p.getName() : args[1]);
+                            this.plugin.organization.checkStats(username, p);
                         } else {
-                            this.plugin.organization.checkStats(p.getUniqueId().toString(), p);
-                        }
-                    } else if (args[0].equalsIgnoreCase("ff")) {
-                        int arena;
-                        if (this.plugin.organization.waitingPlayers.containsKey(p.getName()) || !this.plugin.organization.playingPlayers.contains(p.getName())) {
-                            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
-                        } else if (this.plugin.organization.playingPlayers.contains(p.getName())) {
-                            arena = this.plugin.organization.findArena(p);
-                            if (this.plugin.organization.matches1v1[arena].isRed.containsKey(p)) {
-                                this.plugin.organization.matches1v1[arena].addForfeit(p);
-                            } else if (this.plugin.organization.matches2v2[arena].isRed.containsKey(p)) {
-                                this.plugin.organization.matches2v2[arena].addForfeit(p);
-                            } else if (this.plugin.organization.matches3v3[arena].isRed.containsKey(p)) {
-                                this.plugin.organization.matches3v3[arena].addForfeit(p);
-                            } else if (this.plugin.organization.matches4v4[arena].isRed.containsKey(p)) {
-                                this.plugin.organization.matches4v4[arena].addForfeit(p);
-                            }
-                        } else {
-                            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
+                            this.plugin.organization.checkStats(p.getName(), p);
                         }
                     } else if (args[0].equalsIgnoreCase("leave")) {
                         if (this.plugin.organization.waitingPlayers.containsKey(p.getName())) {
@@ -815,7 +891,7 @@ public class FootcubeCommand implements CommandExecutor {
                                     this.plugin.organization.waitingTeamPlayers.remove(this.plugin.organization.waitingTeams[team][1]);
                                     this.plugin.organization.reduceArray(this.plugin.organization.waitingTeams, this.plugin.organization.waitingTeams[team][0]);
                                 }
-                            } else {
+                            } else if (this.plugin.organization.waitingPlayers.get(p.getName()) == 4) {
                                 if (this.plugin.organization.lobby4v4 < this.plugin.organization.matches4v4.length) {
                                     this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].leave(p);
                                 }
@@ -828,6 +904,23 @@ public class FootcubeCommand implements CommandExecutor {
                                     }
                                 }
                                 if (team > -1 && this.plugin.organization.matches4v4[this.plugin.organization.lobby4v4].team(this.plugin.organization.waitingTeams[team][0], this.plugin.organization.waitingTeams[team][1])) {
+                                    this.plugin.organization.waitingTeamPlayers.remove(this.plugin.organization.waitingTeams[team][0]);
+                                    this.plugin.organization.waitingTeamPlayers.remove(this.plugin.organization.waitingTeams[team][1]);
+                                    this.plugin.organization.reduceArray(this.plugin.organization.waitingTeams, this.plugin.organization.waitingTeams[team][0]);
+                                }
+                            } else {
+                                if (this.plugin.organization.lobby5v5 < this.plugin.organization.matches5v5.length) {
+                                    this.plugin.organization.matches5v5[this.plugin.organization.lobby5v5].leave(p);
+                                }
+                                this.plugin.organization.waitingPlayers.remove(p.getName());
+                                int team = -1;
+                                for (int j2 = 0; j2 < this.plugin.organization.waitingTeams.length; ++j2) {
+                                    if (this.plugin.organization.waitingTeams[j2].length < 3) {
+                                        team = j2;
+                                        break;
+                                    }
+                                }
+                                if (team > -1 && this.plugin.organization.matches5v5[this.plugin.organization.lobby5v5].team(this.plugin.organization.waitingTeams[team][0], this.plugin.organization.waitingTeams[team][1])) {
                                     this.plugin.organization.waitingTeamPlayers.remove(this.plugin.organization.waitingTeams[team][0]);
                                     this.plugin.organization.waitingTeamPlayers.remove(this.plugin.organization.waitingTeams[team][1]);
                                     this.plugin.organization.reduceArray(this.plugin.organization.waitingTeams, this.plugin.organization.waitingTeams[team][0]);
@@ -847,7 +940,6 @@ public class FootcubeCommand implements CommandExecutor {
                         if (this.plugin.organization.setupGuy == null) {
                             if (args.length < 1) {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("arenaNotSpecified")));
-                                p.sendMessage("/fc setuparena (1v1, 2v2, 3v3 ili 4v4)");
                             } else {
                                 if (args[1].equalsIgnoreCase("1v1")) {
                                     this.plugin.organization.setupType = 1;
@@ -857,6 +949,8 @@ public class FootcubeCommand implements CommandExecutor {
                                     this.plugin.organization.setupType = 3;
                                 } else if (args[1].equalsIgnoreCase("4v4")) {
                                     this.plugin.organization.setupType = 4;
+                                } else if (args[1].equalsIgnoreCase("5v5")) {
+                                    this.plugin.organization.setupType = 5;
                                 } else {
                                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("invalidArenaType")));
                                 }
@@ -871,11 +965,11 @@ public class FootcubeCommand implements CommandExecutor {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("alreadyInSetup")));
                         }
                     } else if (args[0].equalsIgnoreCase("glove") && p.hasPermission("footcube.glove")) {
-                        ItemStack item = new ItemStack(Material.BLAZE_ROD, 1);
+/*                        ItemStack item = new ItemStack(Material.BLAZE_ROD, 1);
                         ItemMeta meta = item.getItemMeta();
                         meta.setDisplayName("GLOVE");
                         item.setItemMeta(meta);
-                        p.getInventory().addItem(item);
+                        p.getInventory().addItem(item);*/
                     } else if (args[0].equalsIgnoreCase("cleararenas") && p.hasPermission("footcube.admin")) {
                         final FileConfiguration cfg = this.plugin.getConfig();
                         cfg.set("arenas", (Object) null);
@@ -889,6 +983,7 @@ public class FootcubeCommand implements CommandExecutor {
                         this.plugin.organization.matches2v2 = new Match[0];
                         this.plugin.organization.matches3v3 = new Match[0];
                         this.plugin.organization.matches4v4 = new Match[0];
+                        this.plugin.organization.matches5v5 = new Match[0];
                         p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("arenaClearSuccess")));
                     } else if (args[0].equalsIgnoreCase("autohitter") && p.hasPermission("footcube.admin")) {
                         if (args.length < 2) {
@@ -961,6 +1056,7 @@ public class FootcubeCommand implements CommandExecutor {
                             cfg.set(red + "z", (Object) r.getZ());
                             cfg.set(red + "pitch", (Object) r.getPitch());
                             cfg.set(red + "yaw", (Object) r.getYaw());
+                            cfg.set("arenas." + v + "." + arena + ".name", "null");
                             this.plugin.saveConfig();
                             this.plugin.organization.addArena(this.plugin.organization.setupType, b2, r);
                             this.plugin.organization.setupGuy = null;

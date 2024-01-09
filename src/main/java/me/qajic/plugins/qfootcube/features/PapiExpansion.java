@@ -1,15 +1,15 @@
 package me.qajic.plugins.qfootcube.features;
 
 import me.qajic.plugins.qfootcube.Footcube;
-import me.qajic.plugins.qfootcube.configuration.PapiConfig;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.luckperms.api.cacheddata.CachedMetaData;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.NodeType;
+import org.bson.Document;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.List;
+
+import static java.lang.Integer.parseInt;
 
 public class PapiExpansion extends PlaceholderExpansion {
 
@@ -39,62 +39,75 @@ public class PapiExpansion extends PlaceholderExpansion {
     public boolean persist() {
         return true;
     }
+    static boolean isInt(String s)
+    {
+        try
+        { int i = Integer.parseInt(s); return true; }
 
+        catch(NumberFormatException er)
+        { return false; }
+    }
     @Override
     public String onPlaceholderRequest(Player player, String params) {
-        if(params.equalsIgnoreCase("mostwins1")){
-            String output = PapiConfig.get().getString("mostWins1");
-            return output;
+        String[] args = params.split("\\.");
+        int id=0;
+        if (args.length > 2 && isInt(args[2])) {
+            id = parseInt(args[2]) - 1;
+            if (id < 0)
+                id = 0;
         }
-        if(params.equalsIgnoreCase("mostwins2")){
-            String output = PapiConfig.get().getString("mostWins2");
-            return output;
+        if (args[0].equalsIgnoreCase("most_wins")) {
+            if (args.length > 2) {
+                List<Document> wins = this.plugin.organization.hs_wins;
+                if (args[1].equalsIgnoreCase("username")) {
+                    return (String) wins.get(id).get("username");
+                } else if (args[1].equalsIgnoreCase("value")) {
+                    return "" + wins.get(id).get("wins");
+                } else {
+                    return null;
+                }
+            }
         }
-        if(params.equalsIgnoreCase("mostwins3")){
-            String output = PapiConfig.get().getString("mostWins3");
-            return output;
+        if (args[0].equalsIgnoreCase("most_goals")) {
+            if (args.length > 2) {
+                List<Document> goals = this.plugin.organization.hs_goals;
+                if (args[1].equalsIgnoreCase("username")) {
+                    return (String) goals.get(id).get("goals");
+                } else if (args[1].equalsIgnoreCase("value")) {
+                    return "" + goals.get(id).get("goals");
+                } else {
+                    return null;
+                }
+            }
         }
-        if(params.equalsIgnoreCase("mostgoals1")){
-            String output = PapiConfig.get().getString("mostGoals1");
-            return output;
+        if (args[0].equalsIgnoreCase("longest_win_streak")) {
+            if (args.length > 2) {
+                List<Document> winstreak = this.plugin.organization.hs_winstreak;
+                if (args[1].equalsIgnoreCase("username")) {
+                    return (String) winstreak.get(id).get("username");
+                } else if (args[1].equalsIgnoreCase("value")) {
+                    return "" + winstreak.get(id).get("best_win_streak");
+                } else {
+                    return null;
+                }
+            }
         }
-        if(params.equalsIgnoreCase("mostgoals2")){
-            String output = PapiConfig.get().getString("mostGoals2");
-            return output;
-        }
-        if(params.equalsIgnoreCase("mostgoals3")){
-            String output = PapiConfig.get().getString("mostGoals3");
-            return output;
-        }
-        if(params.equalsIgnoreCase("longeststreak1")){
-            String output = PapiConfig.get().getString("longestStreak1");
-            return output;
-        }
-        if(params.equalsIgnoreCase("longeststreak2")){
-            String output = PapiConfig.get().getString("longestStreak2");
-            return output;
-        }
-        if(params.equalsIgnoreCase("longeststreak3")){
-            String output = PapiConfig.get().getString("longestStreak3");
-            return output;
-        }
-        if(params.equalsIgnoreCase("mostAssists1")){
-            String output = PapiConfig.get().getString("mostAssists1");
-            return output;
-        }
-        if(params.equalsIgnoreCase("mostAssists2")){
-            String output = PapiConfig.get().getString("mostAssists2");
-            return output;
-        }
-        if(params.equalsIgnoreCase("mostAssists3")){
-            String output = PapiConfig.get().getString("mostAssists3");
-            return output;
+        if (args[0].equalsIgnoreCase("most_assists")) {
+            if (args.length > 2) {
+                List<Document> assists = this.plugin.organization.hs_assists;
+                if (args[1].equalsIgnoreCase("username")) {
+                    return (String) assists.get(id).get("username");
+                } else if (args[1].equalsIgnoreCase("value")) {
+                    return "" + assists.get(id).get("assists");
+                } else {
+                    return null;
+                }
+            }
         }
         if(params.equalsIgnoreCase("team")){
             CachedMetaData metaData = this.plugin.luckPermsAPI.getPlayerAdapter(Player.class).getMetaData(player);
             return metaData.getMetaValue("team", String::toString).orElse("Not Found");
         }
-
-        return null;
+        return params;
     }
 }
