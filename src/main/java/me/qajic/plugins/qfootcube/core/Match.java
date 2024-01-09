@@ -743,7 +743,7 @@ public class Match implements Listener {
 
         if (this.phase != 2 && this.phase != 4) {
             if (this.type == 2 || this.type == 1)
-                this.time = 20 + this._countdown - (int) (System.currentTimeMillis() - this.startTime) / 1000;
+                this.time = 180 + this._countdown - (int) (System.currentTimeMillis() - this.startTime) / 1000;
             else if (this.type == 3)
                 this.time = 240 + this._countdown - (int) (System.currentTimeMillis() - this.startTime) / 1000;
             else if (this.type == 4)
