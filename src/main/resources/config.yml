@@ -1,0 +1,27 @@
+enabledCommands: ''
+arenas:
+  1v1:
+    amount: 0
+  2v2:
+    amount: 0
+  3v3:
+    amount: 0
+  4v4:
+    amount: 0
+  5v5:
+    amount: 0
+kickpower: 0.0
+uc_kickpower: 1.0
+charge: 1.5
+afterMatchRespawn:
+  '1': 0.0
+  '2': 0.0
+  '3': 0.0
+mongo-secret: ''
+mongo-database: ''
+goalThrow: false
+winReward: 200.0
+tiedReward: 100.0
+scoreReward: 50.0
+hattyReward: 100.0
+assistReward: 25.0
