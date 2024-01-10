@@ -210,6 +210,9 @@ public class Particles implements Listener {
                     .orElse(null);
             assert doc != null;
             final String effect = doc.getString("particle");
+            // fix java.lang.NullPointerException: null
+            // proveriti da li efekat postoji
+            assert effect != null;
             for (final Slime cube : this.plugin.cubes) {
                 if(cube != null) {
                     if (!cube.isDead()) {

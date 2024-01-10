@@ -1,8 +1,13 @@
 package me.qajic.plugins.qfootcube.core;
 
+import com.connorlinfoot.titleapi.TitleAPI;
 import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.GoalExplosion;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
+import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -124,7 +129,7 @@ public class Match implements Listener {
     private void enableSidebar(String type) {
         if (type.equalsIgnoreCase("ingame")) {
             this.ingameLayout().apply(this.sidebar);
-        } else if(type.equalsIgnoreCase("prematch")){
+        } else if (type.equalsIgnoreCase("prematch")) {
             this.prematchLayout().apply(this.sidebar);
         }
         for (Player p : this.isRed.keySet()) {
@@ -138,45 +143,45 @@ public class Match implements Listener {
         Component title = Component.text("FOOTBALL").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true);
         String name = cfg.getString("arenas." + this.type + "v" + this.type + "." + (this.arena + 1) + ".name");
         Component blue = Component.text("  ")
-                .color(NamedTextColor.DARK_GRAY)
-                .append(
-                        Component.text("Blue Team:")
-                                .color(NamedTextColor.WHITE)
-                );
+            .color(NamedTextColor.DARK_GRAY)
+            .append(
+                Component.text("Blue Team:")
+                    .color(NamedTextColor.WHITE)
+            );
 
         Component red = Component.text("  ")
-                .color(NamedTextColor.DARK_GRAY)
-                .append(
-                        Component.text("Red Team:")
-                                .color(NamedTextColor.WHITE)
-                );
+            .color(NamedTextColor.DARK_GRAY)
+            .append(
+                Component.text("Red Team:")
+                    .color(NamedTextColor.WHITE)
+            );
 
         Component arena = Component.text(" ▪ ")
-                .color(NamedTextColor.DARK_GRAY)
-                .append(
-                        Component.text("Arena: ")
-                                .color(NamedTextColor.WHITE)
-                ).append(
-                        Component.text(name + " [" + ((int) this.arena + 1) + "]")
-                                .color(NamedTextColor.GREEN)
-                );
+            .color(NamedTextColor.DARK_GRAY)
+            .append(
+                Component.text("Arena: ")
+                    .color(NamedTextColor.WHITE)
+            ).append(
+                Component.text(name + " [" + ((int) this.arena + 1) + "]")
+                    .color(NamedTextColor.GREEN)
+            );
 
         SidebarComponent.Builder lines = SidebarComponent.builder()
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addComponent(SidebarComponent.staticLine(arena))
-                .addComponent(SidebarComponent.staticLine(Component.empty()));
+            .addComponent(SidebarComponent.staticLine(Component.empty()))
+            .addComponent(SidebarComponent.staticLine(arena))
+            .addComponent(SidebarComponent.staticLine(Component.empty()));
 
         if (this.type != 5) {
             lines.addComponent(SidebarComponent.staticLine(blue));
             for (Player p : this.isRed.keySet()) {
                 if (!this.isRed.get(p)) {
                     lines.addComponent(SidebarComponent.staticLine(
-                            Component.text(" ▪ ")
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(
-                                            Component.text(p.getName())
-                                                    .color(NamedTextColor.AQUA)
-                                    )
+                        Component.text(" ▪ ")
+                            .color(NamedTextColor.DARK_GRAY)
+                            .append(
+                                Component.text(p.getName())
+                                    .color(NamedTextColor.AQUA)
+                            )
                     ));
                 }
             }
@@ -185,12 +190,12 @@ public class Match implements Listener {
             for (Player p : this.isRed.keySet()) {
                 if (this.isRed.get(p)) {
                     lines.addComponent(SidebarComponent.staticLine(
-                            Component.text(" ▪ ")
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(
-                                            Component.text(p.getName())
-                                                    .color(NamedTextColor.RED)
-                                    )
+                        Component.text(" ▪ ")
+                            .color(NamedTextColor.DARK_GRAY)
+                            .append(
+                                Component.text(p.getName())
+                                    .color(NamedTextColor.RED)
+                            )
                     ));
                 }
             }
@@ -205,45 +210,45 @@ public class Match implements Listener {
         String name = cfg.getString("arenas." + this.type + "v" + this.type + "." + (this.arena + 1) + ".name");
         Component title = Component.text("FOOTBALL").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true);
         Component arena = Component.text(" ▪ ")
-                .color(NamedTextColor.DARK_GRAY)
-                .append(
-                        Component.text("Arena: ")
-                                .color(NamedTextColor.WHITE)
-                ).append(
-                        Component.text(name + " [" + ((int) this.arena + 1) + "]")
-                                .color(NamedTextColor.GREEN)
-                );
+            .color(NamedTextColor.DARK_GRAY)
+            .append(
+                Component.text("Arena: ")
+                    .color(NamedTextColor.WHITE)
+            ).append(
+                Component.text(name + " [" + ((int) this.arena + 1) + "]")
+                    .color(NamedTextColor.GREEN)
+            );
 
         SidebarComponent lines = SidebarComponent.builder()
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addStaticLine(arena)
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
-                        .color(NamedTextColor.AQUA)
-                        .append(
-                                Component.text(" - ")
-                                        .color(NamedTextColor.GRAY)
-                        ).append(
-                                Component.text("Red " + this.redGoals)
-                                        .color(NamedTextColor.RED)
-                        ))
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addDynamicLine(() -> Component.text(" ▪ ")
-                        .color(NamedTextColor.DARK_GRAY)
-                        .append(
-                                Component.text("Time left: ")
-                                        .color(NamedTextColor.WHITE)
-                        ).append(
-                                Component.text(this.time + "")
-                                        .color(NamedTextColor.GREEN)
-                        ))
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .build();
+            .addComponent(SidebarComponent.staticLine(Component.empty()))
+            .addStaticLine(arena)
+            .addComponent(SidebarComponent.staticLine(Component.empty()))
+            .addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
+                .color(NamedTextColor.AQUA)
+                .append(
+                    Component.text(" - ")
+                        .color(NamedTextColor.GRAY)
+                ).append(
+                    Component.text("Red " + this.redGoals)
+                        .color(NamedTextColor.RED)
+                ))
+            .addComponent(SidebarComponent.staticLine(Component.empty()))
+            .addDynamicLine(() -> Component.text(" ▪ ")
+                .color(NamedTextColor.DARK_GRAY)
+                .append(
+                    Component.text("Time left: ")
+                        .color(NamedTextColor.WHITE)
+                ).append(
+                    Component.text(this.time + "")
+                        .color(NamedTextColor.GREEN)
+                ))
+            .addComponent(SidebarComponent.staticLine(Component.empty()))
+            .build();
         return new ComponentSidebarLayout(SidebarComponent.staticLine(title), lines);
     }
 
     private void removeSidebar() {
-        if(!this.sidebar.players().isEmpty()) {
+        if (!this.sidebar.players().isEmpty()) {
             this.sidebar.removePlayers(this.isRed.keySet());
             this.sidebar.removePlayers(this.takePlace);
             this.sidebar.clearLines();
@@ -254,12 +259,12 @@ public class Match implements Listener {
         Firework f = (Firework) location.getWorld().spawn(location, Firework.class);
         FireworkMeta fm = f.getFireworkMeta();
         fm.addEffect(FireworkEffect.builder()
-                .flicker(false)
-                .trail(true)
-                .withColor(Color.ORANGE)
-                .withColor(Color.BLUE)
-                .withFade(Color.BLUE)
-                .build());
+            .flicker(false)
+            .trail(true)
+            .withColor(Color.ORANGE)
+            .withColor(Color.BLUE)
+            .withFade(Color.BLUE)
+            .build());
         fm.setPower(0);
         f.setFireworkMeta(fm);
         f.detonate();
@@ -329,7 +334,7 @@ public class Match implements Listener {
             this.isRed.put(p, true);
             p.teleport(this.redLocation);
             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("joinRedTeam")));
-        } else if(this.bluePlayers.length<this.type){
+        } else if (this.bluePlayers.length < this.type) {
             this.bluePlayers = this.extendArray(this.bluePlayers, p);
             this.isRed.put(p, false);
             p.teleport(this.blueLocation);
@@ -509,6 +514,8 @@ public class Match implements Listener {
                 scorer = this.lastKickBlue;
             if (this.type != 1)
                 assister = this.redAssist.get(1);
+            // ^ java.lang.IndexOutOfBoundsException: Index 1 out of bounds for length 1
+            // dodati null checks
             team = "red";
             ++this.scoreRed;
             ++this.redGoals;
@@ -606,10 +613,16 @@ public class Match implements Listener {
             final double number = this.cube.getLocation().distance(scorer.getLocation());
             Math.round(number);
             String message = this.organization.db.getString("players", scorer.getName(), "custom-score-message");
-            new title(p, scorer, message).start();
-            if (message.length() > 0 && message != null) {
+            String tgoal = "O";
+            //new title(p, scorer, message).start();
+            if (!message.isEmpty()) {
+                TitleAPI.sendTitle(p, 5, 20, 5, ChatColor.translateAlternateColorCodes('&',"&6&lGOAL!"), ChatColor.WHITE + message);
                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("customScoreMessage")).replace("{player}", scorer.getName()).replace("{message}", message));
             } else {
+                for (int i = 0; i < 7; i++) {
+                    TitleAPI.sendTitle(p, 5, 20, 5, ChatColor.translateAlternateColorCodes('&', "&lG" + tgoal + "AL!"), ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("scoreGoal").replace("{player}", scorer.getName())));
+                    tgoal = tgoal.concat("O");
+                }
                 if (assister != scorer && assister != null) {
                     if (number > 20.0) {
                         p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("scoredIncAss").replace("{player}", scorer.getName()).replace("{assist}", "" + assister.getName()).replace("{distance}", "" + Math.round(number))));
@@ -677,8 +690,7 @@ public class Match implements Listener {
 
     public void update() {
         --this.tickToSec;
-        System.out.println("PHASE: "+ this.phase);
-        if(this.phase==1)
+        if (this.phase == 1)
             return;
 
         if (this.phase == 3) {
@@ -704,7 +716,7 @@ public class Match implements Listener {
             }
             if (!prematchSidebarSet) {
                 this.enableSidebar("prematch");
-                this.prematchSidebarSet=true;
+                this.prematchSidebarSet = true;
             }
             if (this.countdown <= 0) {
                 String message;
@@ -850,31 +862,33 @@ public class Match implements Listener {
         }
     }
 }
-
-class title extends Thread {
-    private Player p;
-    private Player scorer;
-    private String message;
-    public title(Player p, Player scorer, String message) {
-        this.p = p;
-        this.scorer=scorer;
-        this.message = message;
-    }
-    public void run() {
-        String tgoal = "O";
-        if(this.message.length()>0 && this.message != null) {
-            this.p.sendTitle(ChatColor.translateAlternateColorCodes('&',"&6&lGOAL!"), ChatColor.WHITE + message);
-            this.suspend();
-        }
-        for (int j = 0; j < 7; j++) {
-            this.p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&lG" + tgoal + "AL!"), ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("scoreGoal").replace("{player}", this.scorer.getName())));
-            tgoal = tgoal.concat("O");
-            try {
-                Thread.sleep(350);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        this.suspend();
-    }
-}
+//
+// sta je ovo ivane crni sine
+//
+//class title extends Thread {
+//    private Player p;
+//    private Player scorer;
+//    private String message;
+//    public title(Player p, Player scorer, String message) {
+//        this.p = p;
+//        this.scorer=scorer;
+//        this.message = message;
+//    }
+//    public void run() {
+//        String tgoal = "O";
+//        if(this.message.length()>0 && this.message != null) {
+//            this.p.sendTitle(ChatColor.translateAlternateColorCodes('&',"&6&lGOAL!"), ChatColor.WHITE + message);
+//            this.suspend();
+//        }
+//        for (int j = 0; j < 7; j++) {
+//            this.p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&lG" + tgoal + "AL!"), ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("scoreGoal").replace("{player}", this.scorer.getName())));
+//            tgoal = tgoal.concat("O");
+//            try {
+//                Thread.sleep(350);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        this.suspend();
+//    }
+//}

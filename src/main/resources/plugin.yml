@@ -4,6 +4,8 @@ main: me.qajic.plugins.qfootcube.Footcube
 authors: [ qajic ]
 description: Minecraft Soccer Plugin
 api-version: 1.8
+depend:
+  - TitleAPI
 commands:
   cube:
     description: spawns a ball, eh... cube
