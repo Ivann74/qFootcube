@@ -15,7 +15,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spath>/home/neon/Other/Downloads/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar</spath>
+        <spath>C:\Users\Ivan Gajic\Documents\spigot-1.8.8-R0.1-SNAPSHOT-latest.jar</spath>
     </properties>
 
     <build>
