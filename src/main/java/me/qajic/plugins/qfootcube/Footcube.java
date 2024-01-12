@@ -191,6 +191,16 @@ public final class Footcube extends JavaPlugin implements Listener
         final Player p = (Player)sender;
         if (cmd.getName().equalsIgnoreCase("cube") && p.getWorld().getDifficulty() != Difficulty.PEACEFUL && p.hasPermission("footcube.spawncube")) {
             final Location loc = p.getLocation().add(0.0, 1.0, 0.0);
+            for (final Entity entity : loc.getWorld().getNearbyEntities(loc, 50, 40, 50)) {
+                if (entity instanceof Slime) {
+                    List<Slime> cubes = new ArrayList<>();
+                    cubes.add((Slime) entity);
+                }
+            }
+            if (cubes.size() >= 5) {
+                p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("toomanycubes")));
+                return false;
+            }
             if (this.immuneMap.containsKey(p)) {
                 Bukkit.getScheduler().cancelTask(this.immuneMap.get(p).getTaskId());
                 this.immuneMap.remove(p);
@@ -423,44 +433,34 @@ public final class Footcube extends JavaPlugin implements Listener
     }
 
     private void update() {
-        // fix java.util.ConcurrentModificationException: null
         if (this.kicked.size() > 0)
             this.kicked.entrySet().removeIf(entry -> System.currentTimeMillis() > this.kicked.get(entry.getKey()) + 1000L);
-        //if (this.kicked.size() > 0) {
-        //    for (final String s : this.kicked.keySet()) {
-        //        if (System.currentTimeMillis() > this.kicked.get(s) + 1000L) {
-        //            this.kicked.remove(s);
-        //        }
-        //    }
-        //}
         Collection<? extends Player> onlinePlayers;
         final FileConfiguration cfg = this.getConfig();
-        for (int length = (onlinePlayers = (Collection<? extends Player>)this.getServer().getOnlinePlayers()).size(), i = 0; i < length; ++i) {
-            final Player p = (Player)onlinePlayers.toArray()[i];
+        for (int length = (onlinePlayers = (Collection<? extends Player>) this.getServer().getOnlinePlayers()).size(), i = 0; i < length; ++i) {
+            final Player p = (Player) onlinePlayers.toArray()[i];
             p.setHealth(20.0);
             p.setSaturation(100.0F);
             p.setExhaustion(20.0F);
         }
         for (final String s2 : this.charges.keySet()) {
             final Player p2 = this.getServer().getPlayer(s2);
-            final double charge = this.charges.get(s2);
+            final double charge = !this.charges.isEmpty() ? this.charges.get(s2) : 0.0D;
             final double nextCharge = 1.0D - (1.0D - charge) * (0.95D - cfg.getInt("charge") * 0.005D);
             this.charges.put(s2, nextCharge);
-            p2.setExp((float)nextCharge);
+            p2.setExp((float) nextCharge);
         }
-        // fix java.util.ConcurrentModificationException: null
-        // return odmah ako je prazan set, if else su losi za performansu
-        //if(!this.cubes.isEmpty())
         if (this.cubes.isEmpty()) return;
-        for (final Slime cube : this.cubes) {
+        Iterator<Slime> iterator = this.cubes.iterator();
+        while (iterator.hasNext()) {
+            Slime cube = iterator.next();
             if (cube == null) return;
             final UUID id = cube.getUniqueId();
             Vector oldV = cube.getVelocity();
             if (this.velocities.containsKey(id)) oldV = this.velocities.get(id);
             if (cube.isDead()) {
-                this.cubes.remove(cube);
-                if (!this.organization.practiceBalls.contains(cube)) continue;
-                this.organization.practiceBalls.remove(cube);
+                this.cubes.removeIf(key -> this.cubes.contains(key));
+                this.organization.practiceBalls.removeIf(key -> this.organization.practiceBalls.contains(key));
                 return;
             }
             boolean sound = false;

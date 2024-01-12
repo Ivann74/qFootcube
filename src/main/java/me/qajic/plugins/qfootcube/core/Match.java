@@ -612,7 +612,7 @@ public class Match implements Listener {
         for (final Player p : this.isRed.keySet()) {
             final double number = this.cube.getLocation().distance(scorer.getLocation());
             Math.round(number);
-            String message = this.organization.db.getString("players", scorer.getName(), "custom-score-message");
+            String message = ChatColor.translateAlternateColorCodes('&', this.organization.db.getString("players", scorer.getName(), "custom-score-message"));
             String tgoal = "O";
             //new title(p, scorer, message).start();
             if (!message.isEmpty()) {
