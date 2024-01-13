@@ -4,7 +4,6 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import me.qajic.plugins.qfootcube.commands.FootcubeCommand;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.core.Organization;
@@ -329,10 +328,6 @@ public final class Footcube extends JavaPlugin implements Listener
     @EventHandler
     public void onSlamSlime(final EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Slime)) return;
-        if (!(this.cubes.contains((Slime) e.getEntity()))) {
-            ((Slime) e.getEntity()).setHealth(0.0);
-            return;
-        }
         if (!(e.getDamager() instanceof Player)) return;
         if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
 
@@ -350,6 +345,7 @@ public final class Footcube extends JavaPlugin implements Listener
         if (this.charges.containsKey(p.getName())) {
             charge += this.charges.get(p.getName()) * 7.0D;
         }
+        if (!this.cubes.contains(e.getEntity())) ((Slime) e.getEntity()).setHealth(0.0);
         else if (e.getEntity() instanceof Slime && !this.pickedCubes.contains(e.getEntity()) && next==true && this.cubes.contains(e.getEntity()) && e.getDamager() instanceof Player && e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
             final Slime cube = (Slime)e.getEntity();
             if (p.getGameMode() == GameMode.CREATIVE) {
@@ -465,9 +461,8 @@ public final class Footcube extends JavaPlugin implements Listener
             Vector oldV = cube.getVelocity();
             if (this.velocities.containsKey(id)) oldV = this.velocities.get(id);
             if (cube.isDead()) {
-                // ako ne radi ovo promeniti u iterator.remove(cube);
-                this.cubes.removeIf(key -> this.cubes.contains(key));
-                this.organization.practiceBalls.removeIf(key -> this.organization.practiceBalls.contains(key));
+                if (this.cubes.contains(cube)) iterator.remove();
+                if (this.organization.practiceBalls.contains(cube)) iterator.remove();
                 return;
             }
             boolean sound = false;
