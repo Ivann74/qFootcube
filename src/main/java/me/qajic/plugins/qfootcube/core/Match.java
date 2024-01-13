@@ -239,32 +239,35 @@ public class Match implements Listener {
                     .color(NamedTextColor.GREEN)
             );
 
-        SidebarComponent lines = SidebarComponent.builder()
-            .addComponent(SidebarComponent.staticLine(Component.empty()))
-            .addStaticLine(arena)
-            .addComponent(SidebarComponent.staticLine(Component.empty()))
-            .addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
+        SidebarComponent.Builder lines = SidebarComponent.builder()
+                .addComponent(SidebarComponent.staticLine(Component.empty()))
+                .addStaticLine(arena)
+                .addComponent(SidebarComponent.staticLine(Component.empty()));
+
+        lines.addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
                 .color(NamedTextColor.AQUA)
                 .append(
-                    Component.text(" - ")
-                        .color(NamedTextColor.GRAY)
+                        Component.text(" - ")
+                                .color(NamedTextColor.GRAY)
                 ).append(
-                    Component.text("Red " + this.redGoals)
-                        .color(NamedTextColor.RED)
-                ))
-            .addComponent(SidebarComponent.staticLine(Component.empty()))
-            .addDynamicLine(() -> Component.text(" ▪ ")
-                .color(NamedTextColor.DARK_GRAY)
-                .append(
-                    Component.text("Time left: ")
-                        .color(NamedTextColor.WHITE)
-                ).append(
-                    Component.text(this.time + "")
-                        .color(NamedTextColor.GREEN)
-                ))
-            .addComponent(SidebarComponent.staticLine(Component.empty()))
-            .build();
-        return new ComponentSidebarLayout(SidebarComponent.staticLine(title), lines);
+                        Component.text("Red " + this.redGoals)
+                                .color(NamedTextColor.RED)
+                ));
+
+        lines.addComponent(SidebarComponent.staticLine(Component.empty()));
+
+        lines.addDynamicLine(() -> Component.text(" ▪ ")
+                        .color(NamedTextColor.DARK_GRAY)
+                        .append(
+                                Component.text("Time left: ")
+                                        .color(NamedTextColor.WHITE)
+                        ).append(
+                                Component.text(this.time + "")
+                                        .color(NamedTextColor.GREEN)
+                        ));
+        lines.addComponent(SidebarComponent.staticLine(Component.empty()));
+        SidebarComponent finalLines = lines.build();
+        return new ComponentSidebarLayout(SidebarComponent.staticLine(title), finalLines);
     }
 
     private void removeSidebar() {
