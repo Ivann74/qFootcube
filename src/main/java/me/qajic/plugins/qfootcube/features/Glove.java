@@ -44,27 +44,22 @@ public class Glove implements Listener {
 
     @EventHandler
     public void onDropBall(final EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Slime)) return;
+        if (!(this.pl.cubes.contains((Slime) e.getEntity()))) return;
+        if (!(e.getDamager() instanceof Player)) return;
+        if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
+
         final Player p = (Player)e.getDamager();
-        if (e.getEntity() instanceof Slime && p.getPassenger() == e.getEntity() && this.pl.cubes.contains(e.getEntity()) && e.getDamager() instanceof Player && e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+        if (p.getPassenger() == e.getEntity()) {
             p.eject();
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Glove.this.pl.pickedCubes.remove((Slime)e.getEntity());
-                }
-            }.runTaskLater(this.pl, 10);
+            this.pl.getServer().getScheduler().runTaskLaterAsynchronously(this.pl, () -> Glove.this.pl.pickedCubes.remove((Slime) e.getEntity()), 10L);
         }
         e.setCancelled(true);
     }
 
     @EventHandler
     public void onSneak(final PlayerToggleSneakEvent e) {
-        if (e.isSneaking()) {
-            this.sneaking=true;
-        }
-        else {
-            this.sneaking=false;
-        }
+      this.sneaking = e.isSneaking();
     }
 
 }

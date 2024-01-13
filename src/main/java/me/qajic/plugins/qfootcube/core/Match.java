@@ -513,9 +513,7 @@ public class Match implements Listener {
             else
                 scorer = this.lastKickBlue;
             if (this.type != 1)
-                assister = this.redAssist.get(1);
-            // ^ java.lang.IndexOutOfBoundsException: Index 1 out of bounds for length 1
-            // dodati null checks
+                assister = this.redAssist.get(0);
             team = "red";
             ++this.scoreRed;
             ++this.redGoals;

@@ -208,11 +208,8 @@ public class Particles implements Listener {
                     .filter(user -> p.getName().equals(user.getString("username")))
                     .findAny()
                     .orElse(null);
-            assert doc != null;
+            if (doc == null) return;
             final String effect = doc.getString("particle");
-            // fix java.lang.NullPointerException: null
-            // proveriti da li efekat postoji
-            assert effect != null;
             for (final Slime cube : this.plugin.cubes) {
                 if(cube != null) {
                     if (!cube.isDead()) {
