@@ -50,6 +50,30 @@ public class PapiExpansion extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, String params) {
         String[] args = params.split("\\.");
+
+        if(params.equalsIgnoreCase("team")){
+            CachedMetaData metaData = this.plugin.luckPermsAPI.getPlayerAdapter(Player.class).getMetaData(player);
+            return metaData.getMetaValue("team", String::toString).orElse("Not Found");
+        }
+
+        if (args[0].equalsIgnoreCase("matches_in_progress")) {
+            if (args.length > 2) {
+                if (args[1].equalsIgnoreCase("1v1")) {
+                    return ""+this.plugin.organization.matchesInProgress1v1;
+                } else if (args[1].equalsIgnoreCase("2v2")) {
+                    return ""+this.plugin.organization.matchesInProgress2v2;
+                } else if (args[1].equalsIgnoreCase("3v3")) {
+                    return ""+this.plugin.organization.matchesInProgress3v3;
+                } else if (args[1].equalsIgnoreCase("4v4")) {
+                    return ""+this.plugin.organization.matchesInProgress4v4;
+                } else if (args[1].equalsIgnoreCase("5v5")) {
+                    return ""+this.plugin.organization.matchesInProgress5v5;
+                } else {
+                    return null;
+                }
+            }
+        }
+
         int id=0;
         if (args.length > 2 && isInt(args[2])) {
             id = parseInt(args[2]) - 1;
@@ -104,10 +128,6 @@ public class PapiExpansion extends PlaceholderExpansion {
                 }
             }
         }
-        if(params.equalsIgnoreCase("team")){
-            CachedMetaData metaData = this.plugin.luckPermsAPI.getPlayerAdapter(Player.class).getMetaData(player);
-            return metaData.getMetaValue("team", String::toString).orElse("Not Found");
-        }
-        return params;
+        return null;
     }
 }

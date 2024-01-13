@@ -151,10 +151,37 @@ public class Organization implements Listener
             this.hs_goals = this.stats.getHighscore("goals");
             this.hs_wins = this.stats.getHighscore("wins");
             this.hs_winstreak = this.stats.getHighscore("best_win_streak");
-//            int i=0;
-//            for(Match m : matches1v1) {
-//
-//            }
+            int i=0;
+            for(Match m : matches1v1) {
+                if(m.phase>1)
+                    i++;
+            }
+            this.matchesInProgress1v1=i;
+            i=0;
+            for(Match m : matches2v2) {
+                if(m.phase>1)
+                    i++;
+            }
+            this.matchesInProgress2v2=i;
+            i=0;
+            for(Match m : matches3v3) {
+                if(m.phase>1)
+                    i++;
+            }
+            this.matchesInProgress3v3=i;
+            i=0;
+            for(Match m : matches4v4) {
+                if(m.phase>1)
+                    i++;
+            }
+            this.matchesInProgress4v4=i;
+            i=0;
+            for(Match m : matches5v5) {
+                if(m.phase>1)
+                    i++;
+            }
+            this.matchesInProgress5v5=i;
+            i=0;
         }
     }
     @EventHandler

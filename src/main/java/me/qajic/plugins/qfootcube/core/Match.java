@@ -18,7 +18,9 @@ import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -124,6 +126,24 @@ public class Match implements Listener {
             this.redAboveBlue = false;
         }
         this.plugin.getServer().getPluginManager().registerEvents((Listener) this, (Plugin) this.plugin);
+    }
+
+    @EventHandler
+    public void onQuit(final PlayerQuitEvent e) {
+        final Player p = e.getPlayer();
+        if (this.isRed.containsKey(p)) {
+            this.organization.clearInventory(p);
+            if (this.phase != 1) {
+                this.organization.playerLeaves(this, this.isRed.get(p));
+            }
+            if (this.isRed.get(p)) {
+                this.redPlayers = this.reduceArray(this.redPlayers, p);
+            }
+            else {
+                this.bluePlayers = this.reduceArray(this.bluePlayers, p);
+            }
+            this.isRed.remove(p);
+        }
     }
 
     private void enableSidebar(String type) {
@@ -305,28 +325,29 @@ public class Match implements Listener {
         return itemStack;
     }
 
-    private Player[] extendArray(final Player[] array, final Player add) {
-        final Player[] newArray = new Player[array.length + 1];
-        for (int i = 0; i < array.length; ++i) {
-            newArray[i] = array[i];
+    private Player[] extendArray(final Player[] oldL, final Player add) {
+        final Player[] newL = new Player[oldL.length + 1];
+        for (int i = 0; i < oldL.length; ++i) {
+            newL[i] = oldL[i];
         }
-        newArray[array.length] = add;
-        return newArray;
+        newL[oldL.length] = add;
+        return newL;
     }
 
-    private Player[] reduceArray(final Player[] array, final Player remove) {
-        final Player[] newArray = new Player[array.length - 1];
+    private Player[] reduceArray(final Player[] oldL, final Player remove) {
+        final Player[] newL = new Player[oldL.length - 1];
         int i = 0;
         int j = 0;
-        while (i < newArray.length) {
-            if (array[i] != remove) {
-                newArray[j] = array[i];
+        while (i < newL.length) {
+            if (oldL[i] != remove) {
+                newL[j] = oldL[i];
                 ++j;
             }
             ++i;
         }
-        return newArray;
+        return newL;
     }
+
 
     public void join(final Player p) {
         if (this.redPlayers.length < this.type) {
@@ -517,12 +538,6 @@ public class Match implements Listener {
             team = "red";
             ++this.scoreRed;
             ++this.redGoals;
-            if (this.type != 1) {
-                this.blueAssist.clear();
-                this.redAssist.clear();
-                this.blueAssist.add(Bukkit.getPlayer("nobody"));
-                this.redAssist.add(Bukkit.getPlayer("nobody"));
-            }
         } else {
             if (this.lastKickBlue != null)
                 scorer = this.lastKickBlue;
@@ -532,15 +547,14 @@ public class Match implements Listener {
                 assister = this.blueAssist.get(1);
             team = "blue";
             ++this.scoreBlue;
-            this.blueGoals = this.blueGoals + 1;
-            if (this.type != 1) {
-                this.blueAssist.clear();
-                this.redAssist.clear();
-                this.blueAssist.add(Bukkit.getPlayer("nobody"));
-                this.redAssist.add(Bukkit.getPlayer("nobody"));
-            }
+            ++this.blueGoals;
         }
-
+        if (this.type != 1) {
+            this.blueAssist.clear();
+            this.redAssist.clear();
+            this.blueAssist.add(Bukkit.getPlayer("nobody"));
+            this.redAssist.add(Bukkit.getPlayer("nobody"));
+        }
         if (!this.takePlace.contains(scorer) && this.type != 1) {
             final Double scoreReward = this.plugin.getConfig().getDouble("scoreReward");
             final Double hattyReward = this.plugin.getConfig().getDouble("hattyReward");
