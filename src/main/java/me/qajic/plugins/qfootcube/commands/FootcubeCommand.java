@@ -928,7 +928,7 @@ public class FootcubeCommand implements CommandExecutor {
                             }
                         } else if (!this.plugin.organization.playingPlayers.contains(p.getName())) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("notIngame")));
-                        } else {
+                        } else if (this.plugin.organization.playingPlayers.contains(p.getName())) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("cantLeave")));
                         }
                     } else if (args[0].equalsIgnoreCase("undo") && this.plugin.organization.setupGuy == p.getName()) {

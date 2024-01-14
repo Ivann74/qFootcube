@@ -407,7 +407,7 @@ public class Match implements Listener {
             this.isRed.put(p, true);
             p.teleport(this.redLocation);
             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("joinRedTeam")));
-        } else {
+        } else if (this.bluePlayers.length < this.type) {
             this.bluePlayers = this.extendArray(this.bluePlayers, p);
             this.isRed.put(p, false);
             p.teleport(this.blueLocation);
