@@ -350,7 +350,6 @@ public final class Footcube extends JavaPlugin implements Listener
             final Slime cube = (Slime)e.getEntity();
             if (p.getGameMode() == GameMode.CREATIVE) {
                 e.setCancelled(true);
-                p.setGameMode(GameMode.SURVIVAL);
                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("creativeBlock")));
             }
             else if (p.getGameMode() != GameMode.SPECTATOR && p.getGameMode() != GameMode.CREATIVE){
