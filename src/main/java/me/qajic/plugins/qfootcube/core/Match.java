@@ -242,21 +242,18 @@ public class Match implements Listener {
         SidebarComponent.Builder lines = SidebarComponent.builder()
                 .addComponent(SidebarComponent.staticLine(Component.empty()))
                 .addStaticLine(arena)
-                .addComponent(SidebarComponent.staticLine(Component.empty()));
-
-        lines.addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
-                .color(NamedTextColor.AQUA)
-                .append(
-                        Component.text(" - ")
-                                .color(NamedTextColor.GRAY)
-                ).append(
-                        Component.text("Red " + this.redGoals)
-                                .color(NamedTextColor.RED)
-                ));
-
-        lines.addComponent(SidebarComponent.staticLine(Component.empty()));
-
-        lines.addDynamicLine(() -> Component.text(" ▪ ")
+                .addComponent(SidebarComponent.staticLine(Component.empty()))
+                .addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
+                        .color(NamedTextColor.AQUA)
+                        .append(
+                                Component.text(" - ")
+                                        .color(NamedTextColor.GRAY)
+                        ).append(
+                                Component.text("Red " + this.redGoals)
+                                        .color(NamedTextColor.RED)
+                        ))
+                .addDynamicLine(Component::empty)
+                .addDynamicLine(() -> Component.text(" ▪ ")
                         .color(NamedTextColor.DARK_GRAY)
                         .append(
                                 Component.text("Time left: ")
@@ -264,8 +261,9 @@ public class Match implements Listener {
                         ).append(
                                 Component.text(this.time + "")
                                         .color(NamedTextColor.GREEN)
-                        ));
-        lines.addComponent(SidebarComponent.staticLine(Component.empty()));
+                        ))
+                .addDynamicLine(Component::empty);
+
         SidebarComponent finalLines = lines.build();
         return new ComponentSidebarLayout(SidebarComponent.staticLine(title), finalLines);
     }
@@ -852,7 +850,7 @@ public class Match implements Listener {
                         this.organization.stats.riseStats(p.getName(), "ties");
                         this.organization.db.updateInt("players", p.getName(), "win_streak", 0);
                         this.organization.economy.depositPlayer(p.getName(), tiedReward);
-                        p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tiedReward")).replace("reward", "" + tiedReward));
+                        p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tiedReward")).replace("{reward}", "" + tiedReward));
                     }
                 }
                 this.removeSidebar();
