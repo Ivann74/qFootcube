@@ -191,9 +191,9 @@ public final class Footcube extends JavaPlugin implements Listener
         final Player p = (Player)sender;
         if (cmd.getName().equalsIgnoreCase("cube") && p.getWorld().getDifficulty() != Difficulty.PEACEFUL && p.hasPermission("footcube.spawncube")) {
             final Location loc = p.getLocation().add(0.0, 1.0, 0.0);
+            List<Slime> cubes = new ArrayList<>();
             for (final Entity entity : loc.getWorld().getNearbyEntities(loc, 50, 40, 50)) {
                 if (entity instanceof Slime) {
-                    List<Slime> cubes = new ArrayList<>();
                     cubes.add((Slime) entity);
                 }
             }
