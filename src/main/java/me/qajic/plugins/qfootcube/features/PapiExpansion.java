@@ -3,7 +3,6 @@ package me.qajic.plugins.qfootcube.features;
 import me.qajic.plugins.qfootcube.Footcube;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.luckperms.api.cacheddata.CachedMetaData;
-import org.bson.Document;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -82,11 +81,10 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         if (args[0].equalsIgnoreCase("most_wins")) {
             if (args.length > 2) {
-                List<Document> wins = this.plugin.organization.hs_wins;
                 if (args[1].equalsIgnoreCase("username")) {
-                    return (String) wins.get(id).get("username");
+                    return null;
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return "" + wins.get(id).get("wins");
+                    return null;
                 } else {
                     return null;
                 }
@@ -94,11 +92,11 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         if (args[0].equalsIgnoreCase("most_goals")) {
             if (args.length > 2) {
-                List<Document> goals = this.plugin.organization.hs_goals;
                 if (args[1].equalsIgnoreCase("username")) {
-                    return (String) goals.get(id).get("goals");
+                    return null;
+
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return "" + goals.get(id).get("goals");
+                    return null;
                 } else {
                     return null;
                 }
@@ -106,11 +104,10 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         if (args[0].equalsIgnoreCase("longest_win_streak")) {
             if (args.length > 2) {
-                List<Document> winstreak = this.plugin.organization.hs_winstreak;
                 if (args[1].equalsIgnoreCase("username")) {
-                    return (String) winstreak.get(id).get("username");
+                    return null;
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return "" + winstreak.get(id).get("best_win_streak");
+                    return null;
                 } else {
                     return null;
                 }
@@ -118,11 +115,10 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         if (args[0].equalsIgnoreCase("most_assists")) {
             if (args.length > 2) {
-                List<Document> assists = this.plugin.organization.hs_assists;
                 if (args[1].equalsIgnoreCase("username")) {
-                    return (String) assists.get(id).get("username");
+                    return null;
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return "" + assists.get(id).get("assists");
+                    return null;
                 } else {
                     return null;
                 }

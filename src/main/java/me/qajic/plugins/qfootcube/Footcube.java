@@ -1,9 +1,5 @@
 package me.qajic.plugins.qfootcube;
 
-import com.mongodb.MongoException;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 import me.qajic.plugins.qfootcube.commands.FootcubeCommand;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.core.Organization;
@@ -78,9 +74,6 @@ public final class Footcube extends JavaPlugin implements Listener
     GoalExplosions explosions;
     Particle particle;
     public ScoreboardLibrary scoreboardLibrary;
-    public MongoDatabase database;
-    public MongoClient mongoClient;
-
     public Footcube() {
         this.logger = Logger.getLogger("Minecraft");
         this.cubes = new HashSet<Slime>();
@@ -119,7 +112,6 @@ public final class Footcube extends JavaPlugin implements Listener
         }
         this.scoreboardLibrary = scoreboardLibrary;
         this.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)this);
-        this.connectToDatabase();
         this.organization = new Organization(this);
         this.setupLuckPermsAPI();
         this.lpHelper = new LuckPermsHelper(this);
@@ -173,16 +165,6 @@ public final class Footcube extends JavaPlugin implements Listener
         this.getCommand("tc").setExecutor((CommandExecutor)new FootcubeCommand(this));
     }
 
-    private void connectToDatabase() {
-        String connectionString = this.getConfig().getString("mongo-secret");
-        this.mongoClient = MongoClients.create(connectionString);
-        try {
-            this.database = this.mongoClient.getDatabase(this.getConfig().getString("mongo-database"));
-            this.getLogger().info("Successfully connected to database!");
-        } catch (MongoException e) {
-            e.printStackTrace();
-        }
-    }
 
     public boolean onCommand(final CommandSender sender, final Command cmd, final String c, final String[] args) {
         if (!(sender instanceof Player)) {

@@ -1,10 +1,8 @@
 package me.qajic.plugins.qfootcube.features;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.Particle;
-import org.bson.Document;
+import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -33,6 +31,7 @@ public class Particles implements Listener {
     @EventHandler
     public void invClick(final InventoryClickEvent e) {
         final Player p = (Player)e.getWhoClicked();
+        PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.plugin.organization.uuidConverter.get(p.getName()));
         String effect = "";
         if (e.getCurrentItem().hasItemMeta()) {
             effect = e.getCurrentItem().getItemMeta().getDisplayName();
@@ -46,7 +45,7 @@ public class Particles implements Listener {
         switch (s4 = (s = effect)) {
             case " §cHearts": {
                 if(p.hasPermission("footcube.particles.hearts") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Hearts");
+                    playerData.setString("particle", "Hearts");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -56,7 +55,7 @@ public class Particles implements Listener {
                 break;
             }
             case " §cDisable": {
-                this.plugin.organization.db.updateString("players", p.getName(), "particle", "Disable");
+                playerData.setString("particle", "Disable");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("disabledParticles").replace("{effect}", effect)));
                 p.closeInventory();
 
@@ -64,7 +63,7 @@ public class Particles implements Listener {
             }
             case " §aGreen": {
                 if(p.hasPermission("footcube.particles.green") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Green");
+                    playerData.setString("particle", "Green");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -75,7 +74,7 @@ public class Particles implements Listener {
             }
             case " §6Flames": {
                 if(p.hasPermission("footcube.particles.flames") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Flames");
+                    playerData.setString("particle", "Flames");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -86,7 +85,7 @@ public class Particles implements Listener {
             }
             case " §7Flakes": {
                 if(p.hasPermission("footcube.particles.flakes") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Flakes");
+                    playerData.setString("particle", "Flakes");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -97,7 +96,7 @@ public class Particles implements Listener {
             }
             case " §fSparky": {
                 if(p.hasPermission("footcube.particles.sparky") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Sparky");
+                    playerData.setString("particle", "Sparky");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -108,7 +107,7 @@ public class Particles implements Listener {
             }
             case " §4Red": {
                 if(p.hasPermission("footcube.particles.red") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Red");
+                    playerData.setString("particle", "Red");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -119,7 +118,7 @@ public class Particles implements Listener {
             }
             case " §5Portal": {
                 if(p.hasPermission("footcube.particles.portal") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Portal");
+                    playerData.setString("particle", "Portal");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -130,7 +129,7 @@ public class Particles implements Listener {
             }
             case " §dSpell": {
                 if(p.hasPermission("footcube.particles.spell") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Spell");
+                    playerData.setString("particle", "Spell");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -141,7 +140,7 @@ public class Particles implements Listener {
             }
             case " §7Cloud": {
                 if(p.hasPermission("footcube.particles.cloud") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Cloud");
+                    playerData.setString("particle", "Cloud");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -152,7 +151,7 @@ public class Particles implements Listener {
             }
             case " §8Angry": {
                 if(p.hasPermission("footcube.particles.angry") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Angry");
+                    playerData.setString("particle", "Angry");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -163,7 +162,7 @@ public class Particles implements Listener {
             }
             case " §dNotes": {
                 if(p.hasPermission("footcube.particles.notes") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Notes");
+                    playerData.setString("particle", "Notes");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -174,7 +173,7 @@ public class Particles implements Listener {
             }
             case " §5Magic": {
                 if(p.hasPermission("footcube.particles.magic") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Magic");
+                    playerData.setString("particle", "Magic");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -185,7 +184,7 @@ public class Particles implements Listener {
             }
             case " §eDizzy": {
                 if(p.hasPermission("footcube.particles.dizzy") || p.hasPermission("footcube.particles.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "particle", "Dizzy");
+                    playerData.setString("particle", "Dizzy");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedParticle").replace("{effect}", effect)));
                     p.closeInventory();
                 } else {
@@ -197,96 +196,94 @@ public class Particles implements Listener {
             default:
                 break;
         }
+        playerData.savePlayerData(this.plugin.organization.uuidConverter.get(p.getName()));
     }
 
     public void cubeEffect() {
         Collection<? extends Player> onlinePlayers;
-        List<Document> docs = this.plugin.organization.playerDocuments;
         for (int length = (onlinePlayers = this.plugin.getServer().getOnlinePlayers()).size(), k = 0; k < length; ++k) {
-            final Player p = (Player)onlinePlayers.toArray()[k];
-            final Document doc = docs.stream()
-                    .filter(user -> p.getName().equals(user.getString("username")))
-                    .findAny()
-                    .orElse(null);
-            if (doc == null) return;
-            final String effect = doc.getString("particle");
-            for (final Slime cube : this.plugin.cubes) {
-                if(cube != null) {
-                    if (!cube.isDead()) {
-                        final Location loc = cube.getLocation();
-                        switch (effect) {
-                            case "Hearts": {
-                                final Particle hearts = new Particle(EnumParticle.HEART, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                hearts.toPlayer(p);
-                                continue;
+            final Player p = (Player) onlinePlayers.toArray()[k];
+            if (this.plugin.organization.uuidConverter.has(p.getName())) {
+                PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.plugin.organization.uuidConverter.get(p.getName()));
+                final String effect = playerData.getString("particle");
+                for (final Slime cube : this.plugin.cubes) {
+                    if (cube != null) {
+                        if (!cube.isDead()) {
+                            final Location loc = cube.getLocation();
+                            switch (effect) {
+                                case "Hearts": {
+                                    final Particle hearts = new Particle(EnumParticle.HEART, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    hearts.toPlayer(p);
+                                    continue;
+                                }
+                                case "Sparky": {
+                                    final Particle sparky = new Particle(EnumParticle.FIREWORKS_SPARK, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    sparky.toPlayer(p);
+                                    continue;
+                                }
+                                case "Red": {
+                                    final Particle red = new Particle(EnumParticle.REDSTONE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    red.toPlayer(p);
+                                    continue;
+                                }
+                                case "Disable": {
+                                    continue;
+                                }
+                                case "Green": {
+                                    final Particle green = new Particle(EnumParticle.VILLAGER_HAPPY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    green.toPlayer(p);
+                                    continue;
+                                }
+                                case "Flames": {
+                                    final Particle flames = new Particle(EnumParticle.FLAME, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    flames.toPlayer(p);
+                                    continue;
+                                }
+                                case "Flakes": {
+                                    final Particle flakes = new Particle(EnumParticle.SNOWBALL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    flakes.toPlayer(p);
+                                    continue;
+                                }
+                                case "Portal": {
+                                    final Particle _new = new Particle(EnumParticle.PORTAL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Spell": {
+                                    final Particle _new = new Particle(EnumParticle.SPELL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Cloud": {
+                                    final Particle _new = new Particle(EnumParticle.CLOUD, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Angry": {
+                                    final Particle _new = new Particle(EnumParticle.VILLAGER_ANGRY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Notes": {
+                                    final Particle _new = new Particle(EnumParticle.NOTE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Magic": {
+                                    final Particle _new = new Particle(EnumParticle.SPELL_WITCH, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                case "Dizzy": {
+                                    final Particle _new = new Particle(EnumParticle.SPELL_MOB, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                                    _new.toPlayer(p);
+                                    continue;
+                                }
+                                default:
+                                    break;
                             }
-                            case "Sparky": {
-                                final Particle sparky = new Particle(EnumParticle.FIREWORKS_SPARK, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                sparky.toPlayer(p);
-                                continue;
-                            }
-                            case "Red": {
-                                final Particle red = new Particle(EnumParticle.REDSTONE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                red.toPlayer(p);
-                                continue;
-                            }
-                            case "Disable": {
-                                continue;
-                            }
-                            case "Green": {
-                                final Particle green = new Particle(EnumParticle.VILLAGER_HAPPY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                green.toPlayer(p);
-                                continue;
-                            }
-                            case "Flames": {
-                                final Particle flames = new Particle(EnumParticle.FLAME, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                flames.toPlayer(p);
-                                continue;
-                            }
-                            case "Flakes": {
-                                final Particle flakes = new Particle(EnumParticle.SNOWBALL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                flakes.toPlayer(p);
-                                continue;
-                            }
-                            case "Portal": {
-                                final Particle _new = new Particle(EnumParticle.PORTAL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Spell": {
-                                final Particle _new = new Particle(EnumParticle.SPELL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Cloud": {
-                                final Particle _new = new Particle(EnumParticle.CLOUD, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Angry": {
-                                final Particle _new = new Particle(EnumParticle.VILLAGER_ANGRY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Notes": {
-                                final Particle _new = new Particle(EnumParticle.NOTE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Magic": {
-                                final Particle _new = new Particle(EnumParticle.SPELL_WITCH, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            case "Dizzy": {
-                                final Particle _new = new Particle(EnumParticle.SPELL_MOB, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                _new.toPlayer(p);
-                                continue;
-                            }
-                            default:
-                                break;
+                            return;
                         }
-                        return;
                     }
                 }
             }

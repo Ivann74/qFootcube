@@ -2,6 +2,7 @@ package me.qajic.plugins.qfootcube.features;
 
 import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
+import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -27,6 +28,7 @@ public class GoalExplosions implements Listener {
     @EventHandler
     public void invClick(final InventoryClickEvent e) {
         final Player p = (Player)e.getWhoClicked();
+        PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.plugin.organization.uuidConverter.get(p.getName()));
         String explosion = "";
         if (e.getCurrentItem().hasItemMeta()) {
             explosion = e.getCurrentItem().getItemMeta().getDisplayName();
@@ -37,7 +39,7 @@ public class GoalExplosions implements Listener {
         e.setCancelled(true);
         switch (explosion) {
             case " §aDefault": {
-                this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Default");
+                playerData.setString("goal_explosion", "Default");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                 p.closeInventory();
 
@@ -45,7 +47,7 @@ public class GoalExplosions implements Listener {
             }
             case " §7Helix": {
                 if(p.hasPermission("footcube.goalexplosions.helix") || p.hasPermission("footcube.goalexplosions.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Helix");
+                    playerData.setString("goal_explosion", "Helix");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -55,7 +57,7 @@ public class GoalExplosions implements Listener {
             }
             case " §cMeteor": {
                 if(p.hasPermission("footcube.goalexplosions.meteor") || p.hasPermission("footcube.goalexplosions.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Meteor");
+                    playerData.setString("goal_explosion", "Meteor");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -65,7 +67,7 @@ public class GoalExplosions implements Listener {
             }
             case " §6Poo": {
                 if(p.hasPermission("footcube.goalexplosions.poo") || p.hasPermission("footcube.goalexplosions.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Poo");
+                    playerData.setString("goal_explosion", "Poo");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -75,7 +77,7 @@ public class GoalExplosions implements Listener {
             }
             case " §cSerbia": {
                 if(p.hasPermission("footcube.goalexplosions.serbia") || p.hasPermission("footcube.goalexplosions.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Serbia");
+                    playerData.setString("goal_explosion", "Serbia");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -85,7 +87,7 @@ public class GoalExplosions implements Listener {
             }
             case " §6Spain": {
                 if(p.hasPermission("footcube.goalexplosions.spain") || p.hasPermission("footcube.goalexplosions.all")) {
-                    this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Spain");
+                    playerData.setString("goal_explosion", "Spain");
                     p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
                     p.closeInventory();
                 } else {
@@ -94,7 +96,7 @@ public class GoalExplosions implements Listener {
                 break;
             }
             case " §cDisable": {
-                this.plugin.organization.db.updateString("players", p.getName(), "goal_explosion", "Disable");
+                playerData.setString("goal_explosion", "Disable");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("deactivatedExplosion")));
                 p.closeInventory();
 
@@ -103,6 +105,7 @@ public class GoalExplosions implements Listener {
             default:
                 break;
         }
+        playerData.savePlayerData(this.plugin.organization.uuidConverter.get(p.getName()));
     }
 
 }

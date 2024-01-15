@@ -4,6 +4,7 @@ import com.connorlinfoot.titleapi.TitleAPI;
 import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.GoalExplosion;
+import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
@@ -115,16 +116,8 @@ public class Match implements Listener {
         this.blueGoals = 0;
         this.x = (Math.abs(this.blueLocation.getX() - this.redLocation.getX()) > Math.abs(this.blueLocation.getZ() - this.redLocation.getZ()));
         if (this.x) {
-            if (this.redLocation.getX() > this.blueLocation.getX()) {
-                this.redAboveBlue = true;
-            } else {
-                this.redAboveBlue = false;
-            }
-        } else if (this.redLocation.getZ() > this.blueLocation.getZ()) {
-            this.redAboveBlue = true;
-        } else {
-            this.redAboveBlue = false;
-        }
+            this.redAboveBlue = this.redLocation.getX() > this.blueLocation.getX();
+        } else this.redAboveBlue = this.redLocation.getZ() > this.blueLocation.getZ();
         this.plugin.getServer().getPluginManager().registerEvents((Listener) this, (Plugin) this.plugin);
     }
 
@@ -351,6 +344,7 @@ public class Match implements Listener {
 
 
     public void join(final Player p) {
+        PlayerDataManager pm;
         if (this.redPlayers.length < this.type) {
             this.redPlayers = this.extendArray(this.redPlayers, p);
             this.isRed.put(p, true);
@@ -369,8 +363,10 @@ public class Match implements Listener {
             this.organization.matchStart(this.type);
             for (final Player player : this.isRed.keySet()) {
                 player.setLevel(10);
-                if (this.type != 1) {
-                    this.organization.stats.riseStats(player.getName(), "matches");
+                if (this.type != 1 && this.organization.uuidConverter.has(p.getName())) {
+                    pm=new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(p.getName()));
+                    pm.riseInt("matches");
+                    pm.savePlayerData(this.organization.uuidConverter.get(p.getName()));
                 }
                 if (this.isRed.get(player)) {
                     player.getInventory().setChestplate(this.redChestPlate);
@@ -528,6 +524,7 @@ public class Match implements Listener {
         Player scorer = null;
         Player assister = null;
         String team = null;
+        PlayerDataManager scorerData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(scorer.getName()));
 
         if (red) {
             if (this.lastKickRed != null)
@@ -559,7 +556,7 @@ public class Match implements Listener {
         if (!this.takePlace.contains(scorer) && this.type != 1) {
             final Double scoreReward = this.plugin.getConfig().getDouble("scoreReward");
             final Double hattyReward = this.plugin.getConfig().getDouble("hattyReward");
-            this.organization.stats.riseStats(scorer.getName(), "goals");
+            scorerData.riseInt("goals");
             if (this.goals.containsKey(scorer)) {
                 this.goals.put(scorer, this.goals.get(scorer) + 1);
             } else {
@@ -575,10 +572,12 @@ public class Match implements Listener {
                 this.organization.economy.depositPlayer(scorer.getName(), hattyReward);
             }
         }
-
+        scorerData.savePlayerData(this.organization.uuidConverter.get(scorer.getName()));
         if (!this.takePlace.contains(assister) && scorer != assister && assister != null) {
+            PlayerDataManager assisterData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(assister.getName()));
             final Double assistReward = this.plugin.getConfig().getDouble("assistReward");
-            this.organization.stats.riseStats(assister.getName(), "assists");
+            assisterData.riseInt("assists");
+            assisterData.savePlayerData(this.organization.uuidConverter.get(assister.getName()));
             this.organization.economy.depositPlayer(assister.getName(), assistReward);
             if (this.assists.containsKey(assister)) {
                 this.assists.put(assister, this.assists.get(assister) + 1);
@@ -600,7 +599,7 @@ public class Match implements Listener {
             else
                 blueish.setZ(blueish.getZ() + 3);
             try {
-                (new GoalExplosion()).init(blueish, this.organization.db.getString("players", scorer.getName(), "goal_explosion"), 1, this.plugin);
+                (new GoalExplosion()).init(blueish, scorerData.getString("goal_explosion"), 1, this.plugin);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -616,16 +615,16 @@ public class Match implements Listener {
             else
                 redish.setZ(redish.getZ() + 3);
             try {
-                (new GoalExplosion()).init(redish, this.organization.db.getString("players", scorer.getName(), "goal_explosion"), 0, this.plugin);
+                (new GoalExplosion()).init(redish, scorerData.getString("goal_explosion"), 0, this.plugin);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
         for (final Player p : this.isRed.keySet()) {
+            PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(p.getName()));
             final double number = this.cube.getLocation().distance(scorer.getLocation());
             Math.round(number);
-            String message = ChatColor.translateAlternateColorCodes('&', this.organization.db.getString("players", scorer.getName(), "custom-score-message"));
+            String message = ChatColor.translateAlternateColorCodes('&', scorerData.getString("custom_score_message"));
             String tgoal = "O";
             //new title(p, scorer, message).start();
             if (!message.isEmpty()) {
@@ -674,17 +673,17 @@ public class Match implements Listener {
                 final Double winReward = cfg.getDouble("winReward");
                 this.removeSidebar();
                 if (this.isRed.get(p) == red && !this.takePlace.contains(p) && this.type != 1) {
-                    this.organization.stats.riseStats(p.getName(), "wins");
-                    this.organization.stats.riseStats(p.getName(), "win_streak");
-                    int ws = this.organization.db.getInt("players", p.getName(), "win_streak");
-                    int bws = this.organization.db.getInt("players", p.getName(), "best_win_streak");
+                    playerData.riseInt("wins");
+                    playerData.riseInt("win_streak");
+                    int ws = playerData.getInt("win_streak");
+                    int bws = playerData.getInt("best_win_streak");
                     if (ws > bws) {
-                        this.organization.db.updateInt("players", p.getName(), "best_win_streak", ws);
+                        playerData.setInt("best_win_streak", ws);
                     }
                     this.organization.economy.depositPlayer(p.getName(), winReward);
                     p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("winReward")).replace("{reward}", "" + winReward));
                 } else if (!this.takePlace.contains(p) && this.type != 1) {
-                    this.organization.db.updateInt("players", p.getName(), "win_streak", 0);
+                    playerData.setInt("win_streak", 0);
                 }
                 if (x == 0.0 && y == 0.0 && z == 0.0) {
                     p.teleport(p.getWorld().getSpawnLocation());
@@ -698,6 +697,7 @@ public class Match implements Listener {
                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("result").replace("{red}", "" + this.scoreRed).replace("{blue}", "" + this.scoreBlue)));
                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("continue5sec")));
             }
+            playerData.savePlayerData(this.organization.uuidConverter.get(p.getName()));
         }
     }
 
@@ -787,6 +787,7 @@ public class Match implements Listener {
 
             if (this.time <= 0 && this.phase > 2) {
                 for (final Player p : this.isRed.keySet()) {
+                    PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(p.getName()));
                     this.organization.endMatch(p);
                     FileConfiguration cfg = this.plugin.getConfig();
                     final Double winReward = cfg.getDouble("winReward");
@@ -805,17 +806,17 @@ public class Match implements Listener {
                         p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("timesUpRed").replace("{red}", "" + this.scoreRed).replace("{blue}", "" + this.scoreBlue)));
                         if (this.type != 1) {
                             if (this.isRed.get(p) && !this.takePlace.contains(p)) {
-                                this.organization.stats.riseStats(p.getName(), "wins");
-                                this.organization.stats.riseStats(p.getName(), "win_streak");
-                                int ws = this.organization.db.getInt("players", p.getName(), "win_streak");
-                                int bws = this.organization.db.getInt("players", p.getName(), "best_win_streak");
+                                playerData.riseInt("wins");
+                                playerData.riseInt("win_streak");
+                                int ws = playerData.getInt("win_streak");
+                                int bws = playerData.getInt("best_win_streak");
                                 if (ws > bws) {
-                                    this.organization.db.updateInt("players", p.getName(), "best_win_streak", ws);
+                                    playerData.setInt("best_win_streak", ws);
                                 }
                                 this.organization.economy.depositPlayer(p.getName(), winReward);
                                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("winReward")).replace("{reward}", "" + winReward));
                             } else {
-                                this.organization.db.updateInt("players", p.getName(), "win_streak", 0);
+                                playerData.setInt("win_streak", 0);
                             }
                         } else {
                             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("1v1noStats")));
@@ -824,17 +825,17 @@ public class Match implements Listener {
                         p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("timesUpBlue").replace("{blue}", "" + this.scoreBlue).replace("{red}", "" + this.scoreRed)));
                         if (this.type != 1) {
                             if (!this.isRed.get(p) && !this.takePlace.contains(p)) {
-                                this.organization.stats.riseStats(p.getName(), "wins");
-                                this.organization.stats.riseStats(p.getName(), "win_streak");
-                                int ws = this.organization.db.getInt("players", p.getName(), "win_streak");
-                                int bws = this.organization.db.getInt("players", p.getName(), "best_win_streak");
+                                playerData.riseInt("wins");
+                                playerData.riseInt("win_streak");
+                                int ws = playerData.getInt("win_streak");
+                                int bws = playerData.getInt("best_win_streak");
                                 if (ws > bws) {
-                                    this.organization.db.updateInt("players", p.getName(), "best_win_streak", ws);
+                                    playerData.setInt("best_win_streak", ws);
                                 }
                                 this.organization.economy.depositPlayer(p.getName(), winReward);
                                 p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("winReward")).replace("{reward}", "" + winReward));
                             } else {
-                                this.organization.db.updateInt("players", p.getName(), "win_streak", 0);
+                                playerData.setInt("win_streak", 0);
                             }
                         } else {
                             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("1v1noStats")));
@@ -847,11 +848,12 @@ public class Match implements Listener {
                         if (this.type == 1) {
                             continue;
                         }
-                        this.organization.stats.riseStats(p.getName(), "ties");
-                        this.organization.db.updateInt("players", p.getName(), "win_streak", 0);
+                        playerData.riseInt("ties");
+                        playerData.setInt("win_streak", 0);
                         this.organization.economy.depositPlayer(p.getName(), tiedReward);
                         p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tiedReward")).replace("{reward}", "" + tiedReward));
                     }
+                    playerData.savePlayerData(this.plugin.organization.uuidConverter.get(p.getName()));
                 }
                 this.removeSidebar();
                 this.phase = 1;

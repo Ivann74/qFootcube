@@ -4,13 +4,14 @@ import me.qajic.plugins.qfootcube.*;
 import me.qajic.plugins.qfootcube.features.DisableCommands;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.features.Statistics;
-import me.qajic.plugins.qfootcube.utils.Database;
-import org.bson.Document;
+import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
+import me.qajic.plugins.qfootcube.utils.UUIDConverter;
 import org.bukkit.*;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.File;
 import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -66,13 +67,8 @@ public class Organization implements Listener
     public boolean[] leftPlayerIsRed;
     public long announcementTime;
     public Economy economy;
-    public Database db;
     public Statistics stats;
-    public List<Document> playerDocuments;
-    public List<Document> hs_goals;
-    public List<Document> hs_assists;
-    public List<Document> hs_wins;
-    public List<Document> hs_winstreak;
+    public UUIDConverter uuidConverter;
 
     @SuppressWarnings("ALL")
     public Organization(final Footcube pl) {
@@ -97,6 +93,7 @@ public class Organization implements Listener
         this.lobby3v3 = 0;
         this.lobby4v4 = 0;
         this.lobby5v5 = 0;
+        this.uuidConverter = new UUIDConverter();
         this.practiceBalls = new ArrayList<Slime>();
         this.waitingPlayers = new HashMap<String, Integer>();
         this.playingPlayers = new ArrayList<String>();
@@ -107,22 +104,18 @@ public class Organization implements Listener
         this.waitingTeamPlayers = new ArrayList<Player>();
         this.leftMatches = new Match[0];
         this.leftPlayerIsRed = new boolean[0];
+        this.uuidConverter.setup("plugins" + File.separator + "qFootcube" + File.separator + "UUID.data");
         this.economy = null;
+        this.uuidConverter.load();
         this.plugin = pl;
         this.disableCommands = new DisableCommands(this.plugin, this);
         this.plugin.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)this.plugin);
         final FileConfiguration cfg = this.plugin.getConfig();
         this.plugin.saveConfig();
         this.loadArenas(cfg);
-        this.db=new Database(this.plugin, this.plugin.database);
         this.stats=new Statistics(this.plugin);
         Collection<? extends Player> onlinePlayers;
         this.setupEconomy();
-        this.playerDocuments = this.db.getDocs("players");
-        this.hs_assists = this.stats.getHighscore("assists");
-        this.hs_goals = this.stats.getHighscore("goals");
-        this.hs_wins = this.stats.getHighscore("wins");
-        this.hs_winstreak = this.stats.getHighscore("best_win_streak");
         this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask((Plugin)this.plugin, (Runnable)new Runnable() {
             @Override
             public void run() {
@@ -145,50 +138,44 @@ public class Organization implements Listener
     }
 
     public void refreshCache() {
-        if(this.db.checkForConnection()) {
-            this.playerDocuments = this.db.getDocs("players");
-            this.hs_assists = this.stats.getHighscore("assists");
-            this.hs_goals = this.stats.getHighscore("goals");
-            this.hs_wins = this.stats.getHighscore("wins");
-            this.hs_winstreak = this.stats.getHighscore("best_win_streak");
-            int i=0;
-            for(Match m : matches1v1) {
-                if(m.phase>1)
-                    i++;
-            }
-            this.matchesInProgress1v1=i;
-            i=0;
-            for(Match m : matches2v2) {
-                if(m.phase>1)
-                    i++;
-            }
-            this.matchesInProgress2v2=i;
-            i=0;
-            for(Match m : matches3v3) {
-                if(m.phase>1)
-                    i++;
-            }
-            this.matchesInProgress3v3=i;
-            i=0;
-            for(Match m : matches4v4) {
-                if(m.phase>1)
-                    i++;
-            }
-            this.matchesInProgress4v4=i;
-            i=0;
-            for(Match m : matches5v5) {
-                if(m.phase>1)
-                    i++;
-            }
-            this.matchesInProgress5v5=i;
-            i=0;
+        int i=0;
+        for(Match m : matches1v1) {
+            if(m.phase>1)
+                i++;
         }
+        this.matchesInProgress1v1=i;
+        i=0;
+        for(Match m : matches2v2) {
+            if(m.phase>1)
+                i++;
+        }
+        this.matchesInProgress2v2=i;
+        i=0;
+        for(Match m : matches3v3) {
+            if(m.phase>1)
+                i++;
+        }
+        this.matchesInProgress3v3=i;
+        i=0;
+        for(Match m : matches4v4) {
+            if(m.phase>1)
+                i++;
+        }
+        this.matchesInProgress4v4=i;
+        i=0;
+        for(Match m : matches5v5) {
+            if(m.phase>1)
+                i++;
+        }
+        this.matchesInProgress5v5=i;
+        i=0;
     }
     @EventHandler
     public void onJoin(final PlayerJoinEvent e) {
         final Player p = e.getPlayer();
         this.clearInventory(p);
-        this.db.createPlayerDocument(p);
+        new PlayerDataManager(this.plugin, p.getUniqueId());
+        this.uuidConverter.put(p.getName(), p.getUniqueId());
     }
     
     @EventHandler
@@ -649,18 +636,19 @@ public class Organization implements Listener
     }
 
     public void checkStats(final String username, Player p) {
-        if (this.db.userExists(username)) {
-            final int m = this.db.getInt("players", username, "matches");
-            final int w = this.db.getInt("players", username, "wins");
-            final int t = this.db.getInt("players", username, "ties");
-            final int s = this.db.getInt("players", username, "best_win_streak");
-            final int a = this.db.getInt("players", username, "assists");
+        if (this.uuidConverter.has(username)) {
+            PlayerDataManager pm = new PlayerDataManager(this.plugin, this.uuidConverter.get(username));
+            final int m = pm.getInt("matches");
+            final int w = pm.getInt("wins");
+            final int t = pm.getInt("ties");
+            final int s = pm.getInt("best_win_streak");
+            final int a = pm.getInt("assists");
             final int l = m - w - t;
             double mw = m;
             if (w > 0) {
                 mw = 100 * m / w / 100.0;
             }
-            final int g = this.db.getInt("players", username, "goals");
+            final int g = pm.getInt("goals");;
             double gm = 0.0;
             if (m > 0) {
                 gm = 100 * g / m / 100.0;
@@ -673,26 +661,22 @@ public class Organization implements Listener
             double addition = 0.0;
             if (m > 0 && w + t > 0) {
                 addition = 8.0 * (1.0 / (100 * m / (w + 0.5 * t) / 100.0)) - 4.0;
-            }
-            else if (m > 0) {
+            } else if (m > 0) {
                 addition = -4.0;
             }
-            final double skillLevel = (int)(100.0 * (5.0 + goalBonus + addition * multiplier)) / 100.0;
-            final int rank = (int)(skillLevel * 2.0 - 0.5);
+            final double skillLevel = (int) (100.0 * (5.0 + goalBonus + addition * multiplier)) / 100.0;
+            final int rank = (int) (skillLevel * 2.0 - 0.5);
 
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats")));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats1").replace("{playedMatches}", ""+m)));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats2").replace("{wins}", ""+w).replace("{losses}", ""+l)).replace("{tied}", ""+t));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats7").replace("{assists}", ""+a)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats1").replace("{playedMatches}", "" + m)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats2").replace("{wins}", "" + w).replace("{losses}", "" + l)).replace("{tied}", "" + t));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats7").replace("{assists}", "" + a)));
             if (w > 0) {
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats3").replace("{avg}", ""+mw)));
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats3").replace("{avg}", "" + mw)));
             }
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats4").replace("{winStreak}", ""+s)));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats5").replace("{goals}", ""+g)));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats6").replace("{goals}", ""+gm)));
-        }
-        else {
-            p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("statsNoMatchs")));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats4").replace("{winStreak}", "" + s)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats5").replace("{goals}", "" + g)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("stats6").replace("{goals}", "" + gm)));
         }
     }
 

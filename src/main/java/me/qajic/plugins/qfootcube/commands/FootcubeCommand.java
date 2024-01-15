@@ -4,6 +4,7 @@ import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.core.Match;
 import me.qajic.plugins.qfootcube.utils.Banners;
+import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import me.qajic.plugins.qfootcube.utils.Time;
 import net.luckperms.api.model.data.DataMutateResult;
 import net.luckperms.api.model.group.Group;
@@ -15,7 +16,6 @@ import net.luckperms.api.node.types.MetaNode;
 import net.luckperms.api.node.types.PermissionNode;
 import net.luckperms.api.node.types.WeightNode;
 import org.apache.commons.lang.StringUtils;
-import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -554,7 +554,9 @@ public class FootcubeCommand implements CommandExecutor {
                             if(message.length() > 30) {
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("messageTooLong"))));
                             } else {
-                                this.plugin.organization.db.updateString("players", p.getName(), "custom-score-message", message);
+                                PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.plugin.organization.uuidConverter.get(p.getName()));
+                                playerData.setString("custom_score_message", message);
+                                playerData.savePlayerData(this.plugin.organization.uuidConverter.get(p.getName()));
                                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString(("messageSuccess"))));
                             }
                         }
@@ -659,42 +661,37 @@ public class FootcubeCommand implements CommandExecutor {
                         }
                     } else if (args[0].equalsIgnoreCase("best")) {
                         List<String> highscore = MessagesConfig.get().getStringList("highscore");
-                        List<Document> goals = this.plugin.organization.hs_goals;
-                        List<Document> assists = this.plugin.organization.hs_assists;
-                        List<Document> wins = this.plugin.organization.hs_wins;
-                        List<Document> winstreak = this.plugin.organization.hs_winstreak;
-
-                        for (String e : highscore) {
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
-                                    .replace("{first_goals}", goals.get(0).getString("username"))
-                                    .replace("{first_goals_count}", ""+(int)goals.get(0).get("goals"))
-                                    .replace("{second_goals}", goals.get(1).getString("username"))
-                                    .replace("{second_goals_count}", ""+(int)goals.get(1).get("goals"))
-                                    .replace("{third_goals}", goals.get(2).getString("username"))
-                                    .replace("{third_goals_count}", ""+(int)goals.get(2).get("goals"))
-
-                                    .replace("{first_assists}", assists.get(0).getString("username"))
-                                    .replace("{first_assists_count}", ""+(int)assists.get(0).get("assists"))
-                                    .replace("{second_assists}", assists.get(1).getString("username"))
-                                    .replace("{second_assists_count}", ""+(int)assists.get(1).get("assists"))
-                                    .replace("{third_assists}", assists.get(2).getString("username"))
-                                    .replace("{third_assists_count}", ""+(int)assists.get(2).get("assists"))
-
-                                    .replace("{first_wins}", wins.get(0).getString("username"))
-                                    .replace("{first_wins_count}", ""+(int)wins.get(0).get("wins"))
-                                    .replace("{second_wins}", wins.get(1).getString("username"))
-                                    .replace("{second_wins_count}", ""+(int)wins.get(1).get("wins"))
-                                    .replace("{third_wins}", wins.get(2).getString("username"))
-                                    .replace("{third_wins_count}", ""+(int)wins.get(2).get("wins"))
-
-                                    .replace("{first_win_streak}", winstreak.get(0).getString("username"))
-                                    .replace("{first_win_streak_count}", ""+(int)winstreak.get(0).get("best_win_streak"))
-                                    .replace("{second_win_streak}", winstreak.get(1).getString("username"))
-                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).get("best_win_streak"))
-                                    .replace("{third_win_streak}", winstreak.get(2).getString("username"))
-                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).get("best_win_streak"))
-                            );
-                        }
+//                        for (String e : highscore) {
+//                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
+//                                    .replace("{first_goals}", goals.get(0).getString("username"))
+//                                    .replace("{first_goals_count}", ""+(int)goals.get(0).get("goals"))
+//                                    .replace("{second_goals}", goals.get(1).getString("username"))
+//                                    .replace("{second_goals_count}", ""+(int)goals.get(1).get("goals"))
+//                                    .replace("{third_goals}", goals.get(2).getString("username"))
+//                                    .replace("{third_goals_count}", ""+(int)goals.get(2).get("goals"))
+//
+//                                    .replace("{first_assists}", assists.get(0).getString("username"))
+//                                    .replace("{first_assists_count}", ""+(int)assists.get(0).get("assists"))
+//                                    .replace("{second_assists}", assists.get(1).getString("username"))
+//                                    .replace("{second_assists_count}", ""+(int)assists.get(1).get("assists"))
+//                                    .replace("{third_assists}", assists.get(2).getString("username"))
+//                                    .replace("{third_assists_count}", ""+(int)assists.get(2).get("assists"))
+//
+//                                    .replace("{first_wins}", wins.get(0).getString("username"))
+//                                    .replace("{first_wins_count}", ""+(int)wins.get(0).get("wins"))
+//                                    .replace("{second_wins}", wins.get(1).getString("username"))
+//                                    .replace("{second_wins_count}", ""+(int)wins.get(1).get("wins"))
+//                                    .replace("{third_wins}", wins.get(2).getString("username"))
+//                                    .replace("{third_wins_count}", ""+(int)wins.get(2).get("wins"))
+//
+//                                    .replace("{first_win_streak}", winstreak.get(0).getString("username"))
+//                                    .replace("{first_win_streak_count}", ""+(int)winstreak.get(0).get("best_win_streak"))
+//                                    .replace("{second_win_streak}", winstreak.get(1).getString("username"))
+//                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).get("best_win_streak"))
+//                                    .replace("{third_win_streak}", winstreak.get(2).getString("username"))
+//                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).get("best_win_streak"))
+//                            );
+//                        }
                     } else if (args[0].equalsIgnoreCase("team")) {
                         if (args.length < 2) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamNoArgs")));
