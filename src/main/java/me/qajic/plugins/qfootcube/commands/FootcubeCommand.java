@@ -42,7 +42,6 @@ public class FootcubeCommand implements CommandExecutor {
         this.plugin = instance;
         this.pluginString = ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("prefix"));
         this.banners = new Banners();
-        this.leaderboard = new Leaderboard();
     }
     public void createStack(final Inventory inv, final int slot, final Material material, final String name, final List lore, final byte data) {
         final ItemStack item = new ItemStack(material,1, data);
@@ -664,44 +663,41 @@ public class FootcubeCommand implements CommandExecutor {
                         }
                     } else if (args[0].equalsIgnoreCase("best")) {
                         List<String> highscore = MessagesConfig.get().getStringList("highscore");
-                        String folderPath = "plugins" + File.separator + "qFootcube" + File.separator + "playerdata";
-                        List<Path> files = this.leaderboard.listFiles(folderPath);
-                        List<Footballer> players = this.leaderboard.readPlayerData(files);
+                        this.leaderboard = new Leaderboard(this.plugin,"plugins" + File.separator + "qFootcube" + File.separator + "playerdata");
 
-                        List<Footballer> goals = this.leaderboard.getLeaderboard(players, "goals");
-                        List<Footballer> assists = this.leaderboard.getLeaderboard(players, "assists");
-                        List<Footballer> wins = this.leaderboard.getLeaderboard(players, "wins");
-                        List<Footballer> ties = this.leaderboard.getLeaderboard(players, "best_win_streak");
-
+                        List<Footballer> goals = this.leaderboard.getLeaderboard("goals");
+                        List<Footballer> assists = this.leaderboard.getLeaderboard("assists");
+                        List<Footballer> wins = this.leaderboard.getLeaderboard("wins");
+                        List<Footballer> winstreak = this.leaderboard.getLeaderboard("best_win_streak");
                         for (String e : highscore) {
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
-                                    .replace("{first_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(0).getUuid()))
+                                    .replace("{first_goals}", goals.get(0).getUsername())
                                     .replace("{first_goals_count}", ""+(int)goals.get(0).getGoals())
-                                    .replace("{second_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(1).getUuid()))
+                                    .replace("{second_goals}", goals.get(1).getUsername())
                                     .replace("{second_goals_count}", ""+(int)goals.get(1).getGoals())
-                                    .replace("{third_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(2).getUuid()))
+                                    .replace("{third_goals}", goals.get(2).getUsername())
                                     .replace("{third_goals_count}", ""+(int)goals.get(2).getGoals())
 
-//                                    .replace("{first_assists}", assists.get(0).getString("username"))
-//                                    .replace("{first_assists_count}", ""+(int)assists.get(0).get("assists"))
-//                                    .replace("{second_assists}", assists.get(1).getString("username"))
-//                                    .replace("{second_assists_count}", ""+(int)assists.get(1).get("assists"))
-//                                    .replace("{third_assists}", assists.get(2).getString("username"))
-//                                    .replace("{third_assists_count}", ""+(int)assists.get(2).get("assists"))
-//
-//                                    .replace("{first_wins}", wins.get(0).getString("username"))
-//                                    .replace("{first_wins_count}", ""+(int)wins.get(0).get("wins"))
-//                                    .replace("{second_wins}", wins.get(1).getString("username"))
-//                                    .replace("{second_wins_count}", ""+(int)wins.get(1).get("wins"))
-//                                    .replace("{third_wins}", wins.get(2).getString("username"))
-//                                    .replace("{third_wins_count}", ""+(int)wins.get(2).get("wins"))
-//
-//                                    .replace("{first_win_streak}", winstreak.get(0).getString("username"))
-//                                    .replace("{first_win_streak_count}", ""+(int)winstreak.get(0).get("best_win_streak"))
-//                                    .replace("{second_win_streak}", winstreak.get(1).getString("username"))
-//                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).get("best_win_streak"))
-//                                    .replace("{third_win_streak}", winstreak.get(2).getString("username"))
-//                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).get("best_win_streak"))
+                                    .replace("{first_assists}", assists.get(0).getUsername())
+                                    .replace("{first_assists_count}", ""+(int)assists.get(0).getAssists())
+                                    .replace("{second_assists}", assists.get(1).getUsername())
+                                    .replace("{second_assists_count}", ""+(int)assists.get(1).getAssists())
+                                    .replace("{third_assists}", assists.get(2).getUsername())
+                                    .replace("{third_assists_count}", ""+(int)assists.get(2).getAssists())
+
+                                    .replace("{first_wins}", wins.get(0).getUsername())
+                                    .replace("{first_wins_count}", ""+(int)wins.get(0).getWins())
+                                    .replace("{second_wins}", wins.get(1).getUsername())
+                                    .replace("{second_wins_count}", ""+(int)wins.get(1).getWins())
+                                    .replace("{third_wins}", wins.get(2).getUsername())
+                                    .replace("{third_wins_count}", ""+(int)wins.get(2).getWins())
+
+                                    .replace("{first_win_streak}", winstreak.get(0).getUsername())
+                                    .replace("{first_win_streak_count}", ""+(int)winstreak.get(0).getBestWinStreak())
+                                    .replace("{second_win_streak}", winstreak.get(1).getUsername())
+                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).getBestWinStreak())
+                                    .replace("{third_win_streak}", winstreak.get(2).getUsername())
+                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).getBestWinStreak())
                             );
                         }
                     } else if (args[0].equalsIgnoreCase("team")) {

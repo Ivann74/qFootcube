@@ -20,6 +20,8 @@ public class PlayerDataManager {
         this.file = new File(plugin.getDataFolder() + File.separator + "playerdata", playerID + ".yml");
         savePlayerData(playerID);
         this.data=YamlConfiguration.loadConfiguration(this.file);
+//        if(this.data.get("matches") == null)
+//            setDefaults(playerID);
     }
 
     public void reloadPlayerData(final UUID playerID) {
@@ -27,6 +29,21 @@ public class PlayerDataManager {
             this.file = new File(this.plugin.getDataFolder(), playerID + ".yml");
         this.data=YamlConfiguration.loadConfiguration(this.file);
     }
+//
+//    private void setDefaults(final UUID playerID) {
+//        this.data.set("uuid", playerID);
+//        this.data.set("goals", 0);
+//        this.data.set("assists", 0);
+//        this.data.set("matches", 0);
+//        this.data.set("wins", 0);
+//        this.data.set("ties", 0);
+//        this.data.set("win_streak", 0);
+//        this.data.set("best_win_streak", 0);
+//        this.data.set("custom_score_message", "");
+//        this.data.set("particle", "");
+//        this.data.set("goal_explosion", "");
+//        savePlayerData(playerID);
+//    }
 
     public int getInt(final String path) {
         return this.data.getInt(path, 0);

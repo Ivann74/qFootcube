@@ -11,7 +11,7 @@ arenas:
   5v5:
     amount: 0
 kickpower: 0.0
-uc_kickpower: 1.0
+uc_kickpower: 0.0
 charge: 1.5
 afterMatchRespawn:
   '1': 0.0

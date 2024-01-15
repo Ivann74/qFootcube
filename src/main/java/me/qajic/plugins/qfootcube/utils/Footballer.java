@@ -3,24 +3,27 @@ package me.qajic.plugins.qfootcube.utils;
 import java.util.UUID;
 
 public class Footballer {
-    UUID uuid;
-    int goals;
-    int assists;
-    int matches;
-    int wins;
-    int ties;
-    int best_win_streak;
-
-    public UUID getUuid() {
-        return uuid;
+    private String username;
+    private Integer goals;
+    private Integer assists;
+    private Integer matches;
+    private Integer wins;
+    private Integer ties;
+    private Integer win_streak;
+    private Integer best_win_streak;
+    private String custom_score_message;
+    private String particle;
+    private String goal_explosion;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public int getGoals() {
-        return this.goals;
+        return this.goals != null ? this.goals : 0;
     }
 
     public void setGoals(int goals) {
@@ -28,7 +31,7 @@ public class Footballer {
     }
 
     public int getAssists() {
-        return this.assists;
+        return this.assists != null ? this.assists : 0;
     }
 
     public void setAssists(int assists) {
@@ -36,7 +39,7 @@ public class Footballer {
     }
 
     public int getMatches() {
-        return this.matches;
+        return this.matches != null ? this.matches : 0;
     }
 
     public void setMatches(int matches) {
@@ -44,7 +47,7 @@ public class Footballer {
     }
 
     public int getWins() {
-        return this.wins;
+        return this.wins != null ? this.wins : 0;
     }
 
     public void setWins(int wins) {
@@ -52,14 +55,14 @@ public class Footballer {
     }
 
     public int getTies() {
-        return this.ties;
+        return this.ties != null ? this.ties : 0;
     }
 
     public void setTies(int ties) {
         this.ties = ties;
     }
     public int getBestWinStreak() {
-        return this.best_win_streak;
+        return this.best_win_streak != null ? this.best_win_streak : 0;
     }
 
     public void setBestWinStreak(int ws) {

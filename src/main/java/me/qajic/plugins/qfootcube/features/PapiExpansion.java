@@ -2,9 +2,12 @@ package me.qajic.plugins.qfootcube.features;
 
 import me.qajic.plugins.qfootcube.Footcube;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.qajic.plugins.qfootcube.utils.Footballer;
+import me.qajic.plugins.qfootcube.utils.Leaderboard;
 import net.luckperms.api.cacheddata.CachedMetaData;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -74,6 +77,7 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
 
         int id=0;
+        Leaderboard leaderboard = new Leaderboard(this.plugin,"plugins" + File.separator + "qFootcube" + File.separator + "playerdata");
         if (args.length > 2 && isInt(args[2])) {
             id = parseInt(args[2]) - 1;
             if (id < 0)
@@ -81,47 +85,58 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         if (args[0].equalsIgnoreCase("most_wins")) {
             if (args.length > 2) {
+                List<Footballer> wins = leaderboard.getLeaderboard("wins");
                 if (args[1].equalsIgnoreCase("username")) {
-                    return null;
+                    return wins.get(id).getUsername();
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return null;
+                    return ""+wins.get(id).getWins();
                 } else {
                     return null;
                 }
+            } else {
+                return null;
             }
         }
         if (args[0].equalsIgnoreCase("most_goals")) {
             if (args.length > 2) {
+                List<Footballer> goals = leaderboard.getLeaderboard("goals");
                 if (args[1].equalsIgnoreCase("username")) {
-                    return null;
-
+                    return goals.get(id).getUsername();
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return null;
+                    return ""+goals.get(id).getGoals();
                 } else {
                     return null;
                 }
+            } else {
+                return null;
             }
         }
         if (args[0].equalsIgnoreCase("longest_win_streak")) {
             if (args.length > 2) {
+                List<Footballer> winstreak = leaderboard.getLeaderboard("best_win_streak");
                 if (args[1].equalsIgnoreCase("username")) {
-                    return null;
+                    return winstreak.get(id).getUsername();
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return null;
+                    return ""+winstreak.get(id).getBestWinStreak();
                 } else {
                     return null;
                 }
+            } else {
+                return null;
             }
         }
         if (args[0].equalsIgnoreCase("most_assists")) {
             if (args.length > 2) {
+                List<Footballer> assists = leaderboard.getLeaderboard("assists");
                 if (args[1].equalsIgnoreCase("username")) {
-                    return null;
+                    return assists.get(id).getUsername();
                 } else if (args[1].equalsIgnoreCase("value")) {
-                    return null;
+                    return ""+assists.get(id).getAssists();
                 } else {
                     return null;
                 }
+            } else {
+                return null;
             }
         }
         return null;

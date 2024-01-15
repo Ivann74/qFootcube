@@ -5,6 +5,7 @@ import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.GoalExplosion;
 import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
+import net.kyori.adventure.text.TextComponent;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
@@ -232,29 +233,33 @@ public class Match implements Listener {
                     .color(NamedTextColor.GREEN)
             );
 
+        Component result = Component.text("   " + this.blueGoals + " Blue")
+                .color(NamedTextColor.AQUA)
+                .append(
+                        Component.text(" - ")
+                                .color(NamedTextColor.GRAY)
+                ).append(
+                        Component.text("Red " + this.redGoals)
+                                .color(NamedTextColor.RED)
+                );
+
+        Component time = Component.text(" ▪ ")
+                .color(NamedTextColor.DARK_GRAY)
+                .append(
+                        Component.text("Time left: ")
+                                .color(NamedTextColor.WHITE)
+                ).append(
+                        Component.text(this.time + "")
+                                .color(NamedTextColor.GREEN)
+                );
+
         SidebarComponent.Builder lines = SidebarComponent.builder()
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addStaticLine(arena)
-                .addComponent(SidebarComponent.staticLine(Component.empty()))
-                .addDynamicLine(() -> Component.text("   " + this.blueGoals + " Blue")
-                        .color(NamedTextColor.AQUA)
-                        .append(
-                                Component.text(" - ")
-                                        .color(NamedTextColor.GRAY)
-                        ).append(
-                                Component.text("Red " + this.redGoals)
-                                        .color(NamedTextColor.RED)
-                        ))
                 .addDynamicLine(Component::empty)
-                .addDynamicLine(() -> Component.text(" ▪ ")
-                        .color(NamedTextColor.DARK_GRAY)
-                        .append(
-                                Component.text("Time left: ")
-                                        .color(NamedTextColor.WHITE)
-                        ).append(
-                                Component.text(this.time + "")
-                                        .color(NamedTextColor.GREEN)
-                        ))
+                .addDynamicLine(() -> arena)
+                .addDynamicLine(Component::empty)
+                .addDynamicLine(() -> result)
+                .addDynamicLine(Component::empty)
+                .addDynamicLine(() -> time)
                 .addDynamicLine(Component::empty);
 
         SidebarComponent finalLines = lines.build();
@@ -363,10 +368,10 @@ public class Match implements Listener {
             this.organization.matchStart(this.type);
             for (final Player player : this.isRed.keySet()) {
                 player.setLevel(10);
-                if (this.type != 1 && this.organization.uuidConverter.has(p.getName())) {
-                    pm=new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(p.getName()));
+                if (this.type != 1 && this.organization.uuidConverter.has(player.getName())) {
+                    pm=new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(player.getName()));
                     pm.riseInt("matches");
-                    pm.savePlayerData(this.organization.uuidConverter.get(p.getName()));
+                    pm.savePlayerData(this.organization.uuidConverter.get(player.getName()));
                 }
                 if (this.isRed.get(player)) {
                     player.getInventory().setChestplate(this.redChestPlate);
@@ -385,12 +390,14 @@ public class Match implements Listener {
     }
 
     public void leave(final Player p) {
-        if (this.isRed.get(p)) {
-            this.redPlayers = this.reduceArray(this.redPlayers, p);
-        } else {
-            this.bluePlayers = this.reduceArray(this.bluePlayers, p);
+        if(isRed.containsKey(p)) {
+            if (this.isRed.get(p)) {
+                this.redPlayers = this.reduceArray(this.redPlayers, p);
+            } else if (!this.isRed.get(p)) {
+                this.bluePlayers = this.reduceArray(this.bluePlayers, p);
+            }
+            this.isRed.remove(p);
         }
-        this.isRed.remove(p);
         p.teleport(p.getWorld().getSpawnLocation());
     }
 
@@ -524,7 +531,6 @@ public class Match implements Listener {
         Player scorer = null;
         Player assister = null;
         String team = null;
-        PlayerDataManager scorerData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(scorer.getName()));
 
         if (red) {
             if (this.lastKickRed != null)
@@ -553,6 +559,7 @@ public class Match implements Listener {
             this.blueAssist.add(Bukkit.getPlayer("nobody"));
             this.redAssist.add(Bukkit.getPlayer("nobody"));
         }
+        PlayerDataManager scorerData = new PlayerDataManager(this.plugin, this.organization.uuidConverter.get(scorer.getName()));
         if (!this.takePlace.contains(scorer) && this.type != 1) {
             final Double scoreReward = this.plugin.getConfig().getDouble("scoreReward");
             final Double hattyReward = this.plugin.getConfig().getDouble("hattyReward");

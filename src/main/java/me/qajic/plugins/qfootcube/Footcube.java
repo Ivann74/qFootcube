@@ -126,6 +126,7 @@ public final class Footcube extends JavaPlugin implements Listener
                 Footcube.this.particles.cubeEffect();
             }
         }, 20L, 1L);
+
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion(this).register();
         }
@@ -302,7 +303,7 @@ public final class Footcube extends JavaPlugin implements Listener
             public void run() {
                 Footcube.this.shooting.put(p.getName(), true);
             }
-        }.runTaskLater(this, 4);
+        }.runTaskLater(this, 3);
     }
     public String getCurrentTimeStamp() {
         return new SimpleDateFormat("HH:mm:ss.SSS").format(new Date());
@@ -327,7 +328,8 @@ public final class Footcube extends JavaPlugin implements Listener
         if (this.charges.containsKey(p.getName())) {
             charge += this.charges.get(p.getName()) * 7.0D;
         }
-        if (!this.cubes.contains(e.getEntity())) ((Slime) e.getEntity()).setHealth(0.0);
+        if (!this.cubes.contains(e.getEntity()))
+            ((Slime) e.getEntity()).setHealth(0.0);
         else if (e.getEntity() instanceof Slime && !this.pickedCubes.contains(e.getEntity()) && next==true && this.cubes.contains(e.getEntity()) && e.getDamager() instanceof Player && e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
             final Slime cube = (Slime)e.getEntity();
             if (p.getGameMode() == GameMode.CREATIVE) {

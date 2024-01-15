@@ -52,7 +52,7 @@ public class UUIDConverter {
         return this.values.containsKey(key);
     }
 
-    public boolean hasValue(String value) {
+    public boolean hasValue(UUID value) {
         return this.values.containsValue(value);
     }
 

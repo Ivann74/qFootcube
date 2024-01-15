@@ -10,11 +10,7 @@ import java.util.*;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.ChatColor;
-import java.io.IOException;
-import org.bukkit.configuration.file.YamlConfiguration;
-import java.io.File;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.entity.Player;
 import me.qajic.plugins.qfootcube.Footcube;
@@ -200,93 +196,46 @@ public class Particles implements Listener {
     }
 
     public void cubeEffect() {
-        Collection<? extends Player> onlinePlayers;
-        for (int length = (onlinePlayers = this.plugin.getServer().getOnlinePlayers()).size(), k = 0; k < length; ++k) {
-            final Player p = (Player) onlinePlayers.toArray()[k];
-            if (this.plugin.organization.uuidConverter.has(p.getName())) {
-                PlayerDataManager playerData = new PlayerDataManager(this.plugin, this.plugin.organization.uuidConverter.get(p.getName()));
-                final String effect = playerData.getString("particle");
-                for (final Slime cube : this.plugin.cubes) {
-                    if (cube != null) {
-                        if (!cube.isDead()) {
-                            final Location loc = cube.getLocation();
-                            switch (effect) {
-                                case "Hearts": {
-                                    final Particle hearts = new Particle(EnumParticle.HEART, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    hearts.toPlayer(p);
-                                    continue;
-                                }
-                                case "Sparky": {
-                                    final Particle sparky = new Particle(EnumParticle.FIREWORKS_SPARK, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    sparky.toPlayer(p);
-                                    continue;
-                                }
-                                case "Red": {
-                                    final Particle red = new Particle(EnumParticle.REDSTONE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    red.toPlayer(p);
-                                    continue;
-                                }
-                                case "Disable": {
-                                    continue;
-                                }
-                                case "Green": {
-                                    final Particle green = new Particle(EnumParticle.VILLAGER_HAPPY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    green.toPlayer(p);
-                                    continue;
-                                }
-                                case "Flames": {
-                                    final Particle flames = new Particle(EnumParticle.FLAME, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    flames.toPlayer(p);
-                                    continue;
-                                }
-                                case "Flakes": {
-                                    final Particle flakes = new Particle(EnumParticle.SNOWBALL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    flakes.toPlayer(p);
-                                    continue;
-                                }
-                                case "Portal": {
-                                    final Particle _new = new Particle(EnumParticle.PORTAL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Spell": {
-                                    final Particle _new = new Particle(EnumParticle.SPELL, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Cloud": {
-                                    final Particle _new = new Particle(EnumParticle.CLOUD, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Angry": {
-                                    final Particle _new = new Particle(EnumParticle.VILLAGER_ANGRY, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Notes": {
-                                    final Particle _new = new Particle(EnumParticle.NOTE, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Magic": {
-                                    final Particle _new = new Particle(EnumParticle.SPELL_WITCH, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                case "Dizzy": {
-                                    final Particle _new = new Particle(EnumParticle.SPELL_MOB, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
-                                    _new.toPlayer(p);
-                                    continue;
-                                }
-                                default:
-                                    break;
-                            }
-                            return;
-                        }
+        Map<String, EnumParticle> particleMap = createParticleMap();
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            PlayerDataManager playerData = new PlayerDataManager(plugin, uuid);
+            String effect = playerData.getString("particle");
+
+            if (!effect.isEmpty() && particleMap.containsKey(effect)) {
+                EnumParticle particleEnum = particleMap.get(effect);
+
+                Iterator<Slime> iterator = plugin.cubes.iterator();
+                while (iterator.hasNext()) {
+                    Slime cube = iterator.next();
+                    if (!cube.isDead()) {
+                        Location loc = cube.getLocation();
+                        Particle particle = new Particle(particleEnum, loc, true, 0.0f, 0.0f, 0.0f, 100.0f, 0);
+                        particle.toPlayer(player);
                     }
                 }
             }
         }
+    }
+
+    private Map<String, EnumParticle> createParticleMap() {
+        Map<String, EnumParticle> particleMap = new HashMap<>();
+
+        particleMap.put("Hearts", EnumParticle.HEART);
+        particleMap.put("Sparky", EnumParticle.FIREWORKS_SPARK);
+        particleMap.put("Red", EnumParticle.REDSTONE);
+        particleMap.put("Green", EnumParticle.VILLAGER_HAPPY);
+        particleMap.put("Flames", EnumParticle.FLAME);
+        particleMap.put("Portal", EnumParticle.PORTAL);
+        particleMap.put("Spell", EnumParticle.CLOUD);
+        particleMap.put("Cloud", EnumParticle.FIREWORKS_SPARK);
+        particleMap.put("Flakes", EnumParticle.SNOWBALL);
+        particleMap.put("Angry", EnumParticle.VILLAGER_ANGRY);
+        particleMap.put("Notes", EnumParticle.NOTE);
+        particleMap.put("Magic", EnumParticle.SPELL_WITCH);
+        particleMap.put("Dizzy", EnumParticle.SPELL_MOB);
+
+        return particleMap;
     }
 }
