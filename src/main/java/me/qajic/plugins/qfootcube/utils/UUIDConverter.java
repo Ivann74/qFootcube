@@ -35,7 +35,7 @@ public class UUIDConverter {
         return this.values.get(key);
     }
 
-    public String getKey(String value) {
+    public String getKey(UUID value) {
         Iterator var3 = this.values.keySet().iterator();
 
         while(var3.hasNext()) {

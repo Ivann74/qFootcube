@@ -3,9 +3,7 @@ package me.qajic.plugins.qfootcube.commands;
 import me.qajic.plugins.qfootcube.Footcube;
 import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.core.Match;
-import me.qajic.plugins.qfootcube.utils.Banners;
-import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
-import me.qajic.plugins.qfootcube.utils.Time;
+import me.qajic.plugins.qfootcube.utils.*;
 import net.luckperms.api.model.data.DataMutateResult;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.group.GroupManager;
@@ -26,6 +24,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +36,13 @@ public class FootcubeCommand implements CommandExecutor {
     final private Footcube plugin;
     public String pluginString;
     private Banners banners;
+    private Leaderboard leaderboard;
 
     public FootcubeCommand(final Footcube instance) {
         this.plugin = instance;
         this.pluginString = ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("prefix"));
         this.banners = new Banners();
+        this.leaderboard = new Leaderboard();
     }
     public void createStack(final Inventory inv, final int slot, final Material material, final String name, final List lore, final byte data) {
         final ItemStack item = new ItemStack(material,1, data);
@@ -661,15 +664,24 @@ public class FootcubeCommand implements CommandExecutor {
                         }
                     } else if (args[0].equalsIgnoreCase("best")) {
                         List<String> highscore = MessagesConfig.get().getStringList("highscore");
-//                        for (String e : highscore) {
-//                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
-//                                    .replace("{first_goals}", goals.get(0).getString("username"))
-//                                    .replace("{first_goals_count}", ""+(int)goals.get(0).get("goals"))
-//                                    .replace("{second_goals}", goals.get(1).getString("username"))
-//                                    .replace("{second_goals_count}", ""+(int)goals.get(1).get("goals"))
-//                                    .replace("{third_goals}", goals.get(2).getString("username"))
-//                                    .replace("{third_goals_count}", ""+(int)goals.get(2).get("goals"))
-//
+                        String folderPath = "plugins" + File.separator + "qFootcube" + File.separator + "playerdata";
+                        List<Path> files = this.leaderboard.listFiles(folderPath);
+                        List<Footballer> players = this.leaderboard.readPlayerData(files);
+
+                        List<Footballer> goals = this.leaderboard.getLeaderboard(players, "goals");
+                        List<Footballer> assists = this.leaderboard.getLeaderboard(players, "assists");
+                        List<Footballer> wins = this.leaderboard.getLeaderboard(players, "wins");
+                        List<Footballer> ties = this.leaderboard.getLeaderboard(players, "best_win_streak");
+
+                        for (String e : highscore) {
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', e)
+                                    .replace("{first_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(0).getUuid()))
+                                    .replace("{first_goals_count}", ""+(int)goals.get(0).getGoals())
+                                    .replace("{second_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(1).getUuid()))
+                                    .replace("{second_goals_count}", ""+(int)goals.get(1).getGoals())
+                                    .replace("{third_goals}", this.plugin.organization.uuidConverter.getKey(goals.get(2).getUuid()))
+                                    .replace("{third_goals_count}", ""+(int)goals.get(2).getGoals())
+
 //                                    .replace("{first_assists}", assists.get(0).getString("username"))
 //                                    .replace("{first_assists_count}", ""+(int)assists.get(0).get("assists"))
 //                                    .replace("{second_assists}", assists.get(1).getString("username"))
@@ -690,8 +702,8 @@ public class FootcubeCommand implements CommandExecutor {
 //                                    .replace("{second_win_streak_count}", ""+(int)winstreak.get(1).get("best_win_streak"))
 //                                    .replace("{third_win_streak}", winstreak.get(2).getString("username"))
 //                                    .replace("{third_win_streak_count}", ""+(int)winstreak.get(2).get("best_win_streak"))
-//                            );
-//                        }
+                            );
+                        }
                     } else if (args[0].equalsIgnoreCase("team")) {
                         if (args.length < 2) {
                             p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("teamNoArgs")));
