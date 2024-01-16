@@ -95,6 +95,86 @@ public class GoalExplosions implements Listener {
                 }
                 break;
             }
+            case " §fK§1O§fK": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "kok") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "kok");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §bS§eK§cL": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "skl") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "skl");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §eK§0E§eL": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "kel") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "kel");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §9F§fL§9S": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fls") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "fls");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §4F§1K§4S": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fks") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "fks");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §1F§fK§6K": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fkk") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "fkk");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §6M§8K§6U": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "mku") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "mku");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
+            case " §9S§cP§fA": {
+                if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "spa") || p.hasPermission("footcube.goalexplosions.all")) {
+                    playerData.setString("goal_explosion", "spa");
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("activatedExplosion").replace("{explosion}", explosion)));
+                    p.closeInventory();
+                } else {
+                    p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("explosionNoPermission").replace("{explosion}", explosion)));
+                }
+                break;
+            }
             case " §cDisable": {
                 playerData.setString("goal_explosion", "Disable");
                 p.sendMessage(this.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("deactivatedExplosion")));

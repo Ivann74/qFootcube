@@ -146,14 +146,8 @@ public final class Footcube extends JavaPlugin implements Listener
         this.saveResource("config.yml", false);
         FileConfiguration cfg = this.getConfig();
         this.saveConfig();
-        this.saveImages();
         MessagesConfig.create();
         MessagesConfig.save();
-    }
-    private void saveImages() throws IOException {
-        FileUtils.copyInputStreamToFile(this.getResource("poo.png"), new File("plugins/qFootcube/images/poo.png"));
-        FileUtils.copyInputStreamToFile(this.getResource("serbia.png"), new File("plugins/qFootcube/images/serbia.png"));
-        FileUtils.copyInputStreamToFile(this.getResource("spain.png"), new File("plugins/qFootcube/images/spain.png"));
     }
     private void registerListeners() {
         final PluginManager pm = Bukkit.getPluginManager();

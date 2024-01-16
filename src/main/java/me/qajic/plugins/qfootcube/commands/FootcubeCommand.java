@@ -59,35 +59,84 @@ public class FootcubeCommand implements CommandExecutor {
         this.createStack(inv, 11, Material.GRASS, " §aDefault", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this goal explosion.")), (byte) 0);
 
         this.createStack(inv, 49, Material.BARRIER, " §cDisable", Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to disable"), ""), (byte) 0);
-
+        //helix
         if(p.hasPermission("footcube.goalexplosions.helix") || p.hasPermission("footcube.goalexplosions.all"))
             hasPermision = "&8 ▪ &7Status: &a&nOWNED";
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.createStack(inv, 12, Material.WOOL, " §7Helix", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
-
+        //meteor
         if(p.hasPermission("footcube.goalexplosions.meteor") || p.hasPermission("footcube.goalexplosions.all"))
             hasPermision = "&8 ▪ &7Status: &a&nOWNED";
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.createStack(inv, 13, Material.OBSIDIAN, " §cMeteor", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
-
+        //poo
         if(p.hasPermission("footcube.goalexplosions.poo") || p.hasPermission("footcube.goalexplosions.all"))
             hasPermision = "&8 ▪ &7Status: &a&nOWNED";
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.createStack(inv, 14, Material.WOOL, " §6Poo", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 12);
-
+        //serbia
         if(p.hasPermission("footcube.goalexplosions.serbia") || p.hasPermission("footcube.goalexplosions.all"))
             hasPermision = "&8 ▪ &7Status: &a&nOWNED";
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.banners.Serbia(inv, 15, " §cSerbia", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")));
+        //spain
         if(p.hasPermission("footcube.goalexplosions.spain") || p.hasPermission("footcube.goalexplosions.all"))
             hasPermision = "&8 ▪ &7Status: &a&nOWNED";
         else
             hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
         this.banners.Spain(inv, 20, " §6Spain", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")));
+        //kok
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "kok") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 21, Material.WOOL, " §fK§1O§fK", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //skl
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "skl") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 22, Material.WOOL, " §bS§eK§cL", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //kel
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "kel") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 23, Material.WOOL, " §eK§0E§eL", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //fls
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fls") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 24, Material.WOOL, " §9F§fL§9S", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //fks
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fks") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 29, Material.WOOL, " §4F§1K§4S", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //fkk
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "fkk") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 30, Material.WOOL, " §1F§fK§6K", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //mku
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "mku") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 31, Material.WOOL, " §6M§8K§6U", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
+        //spa
+        if(this.plugin.lpHelper.playerInGroup(p.getUniqueId(), "spa") || p.hasPermission("footcube.goalexplosions.all"))
+            hasPermision = "&8 ▪ &7Status: &a&nOWNED";
+        else
+            hasPermision = "&8 ▪ &7Status: &c&mNOT OWNED";
+        this.createStack(inv, 32, Material.WOOL, " §9S§cP§fA", Arrays.asList(ChatColor.translateAlternateColorCodes('&', hasPermision), "", ChatColor.translateAlternateColorCodes('&', "&8 ▪ &f&oClick to activate this particle.")), (byte) 0);
 
         p.openInventory(inv);
     }

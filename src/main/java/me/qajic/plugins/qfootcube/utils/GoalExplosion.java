@@ -108,6 +108,38 @@ public class GoalExplosion {
                 spain(location, pl);
                 break;
             }
+            case "kok": {
+                kok(location, pl);
+                break;
+            }
+            case "skl": {
+                skl(location, pl);
+                break;
+            }
+            case "kel": {
+                kel(location, pl);
+                break;
+            }
+            case "fls": {
+                fls(location, pl);
+                break;
+            }
+            case "fks": {
+                fks(location, pl);
+                break;
+            }
+            case "fkk": {
+                fkk(location, pl);
+                break;
+            }
+            case "mku": {
+                mku(location, pl);
+                break;
+            }
+            case "spa": {
+                spa(location, pl);
+                break;
+            }
             default: {
                 break;
             }
@@ -208,6 +240,47 @@ public class GoalExplosion {
         File file = new File(pl.getDataFolder(), "images/spain.png");
         renderImage(file, location, pl, 64, 43);
     }
+
+    public void kok(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/kok.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void skl(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/skl.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void kel(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/kel.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void fls(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/fls.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void fks(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/fks.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void fkk(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/fkk.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void mku(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/mku.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
+    public void spa(Location location, Footcube pl) {
+        File file = new File(pl.getDataFolder(), "images/spa.png");
+        renderImage(file, location, pl, 64, 43);
+    }
+
     public void helix(Location location) {
         int radius = 2;
         location.setY(location.getY()-5);
