@@ -6,7 +6,11 @@ import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.utils.GoalExplosion;
 import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import net.kyori.adventure.text.TextComponent;
+import net.luckperms.api.cacheddata.CachedPermissionData;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.Node;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.ItemArmor;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -19,20 +23,30 @@ import net.megavex.scoreboardlibrary.api.sidebar.component.SidebarComponent;
 import org.bukkit.*;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.*;
 import org.bukkit.util.Vector;
+import sun.misc.UUDecoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class Match implements Listener {
     public int matchID;
@@ -403,6 +417,13 @@ public class Match implements Listener {
 
     public void takePlace(final Player p) {
         this.takePlace.add(p);
+        List<String> longMessage = MessagesConfig.get().getStringList("startingMatchLong");
+        for (String msg : longMessage) {
+            msg = msg.replace("{matchType}", this.type + "v" + this.type);
+            p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', msg));
+        }
+        if (p.getAllowFlight()) p.setAllowFlight(false);
+        if (p.getGameMode() != GameMode.SURVIVAL) p.setGameMode(GameMode.SURVIVAL);
         if (this.redPlayers.length < this.type) {
             this.redPlayers = this.extendArray(this.redPlayers, p);
             this.isRed.put(p, true);
@@ -716,10 +737,13 @@ public class Match implements Listener {
         if (this.phase == 3) {
             final Location l = this.cube.getLocation();
             if (this.x) {
-                if (((this.redAboveBlue && l.getBlockX() >= this.redLocation.getBlockX()) || (!this.redAboveBlue && this.redLocation.getBlockX() >= l.getBlockX())) && l.getY() < this.redLocation.getY() + 3.0 && l.getZ() < this.redLocation.getZ() + 4.0 && l.getZ() > this.redLocation.getZ() - 4.0) {
+                if (this.plugin.abjuzerUdario && this.plugin.abjuz) {
+                    this.score(this.isRed.containsKey(Bukkit.getPlayer("Neeonn")));
+                    this.plugin.abjuzerUdario = false;
+                } else if (((this.redAboveBlue && l.getBlockX() >= this.redLocation.getBlockX()) || (!this.redAboveBlue && this.redLocation.getBlockX() >= l.getBlockX())) && l.getY() < this.redLocation.getY() + 3.0 && l.getZ() < this.redLocation.getZ() + 4.0 && l.getZ() > this.redLocation.getZ() - 4.0) {
                     this.score(false);
                 } else if (((this.redAboveBlue && l.getBlockX() <= this.blueLocation.getBlockX()) || (!this.redAboveBlue && this.blueLocation.getBlockX() <= l.getBlockX())) && l.getY() < this.blueLocation.getY() + 3.0 && l.getZ() < this.blueLocation.getZ() + 4.0 && l.getZ() > this.blueLocation.getZ() - 4.0) {
-                    this.score(true);
+                  this.score(true);
                 }
             } else if (((this.redAboveBlue && l.getBlockZ() >= this.redLocation.getBlockZ()) || (!this.redAboveBlue && this.redLocation.getBlockZ() >= l.getBlockZ())) && l.getY() < this.redLocation.getY() + 3.0 && l.getX() < this.redLocation.getX() + 4.0 && l.getX() > this.redLocation.getX() - 4.0) {
                 this.score(false);
@@ -733,6 +757,8 @@ public class Match implements Listener {
             this.tickToSec = 20;
             for (final Player p : this.isRed.keySet()) {
                 p.setLevel(this.countdown);
+                if (p.getAllowFlight()) p.setAllowFlight(false);
+                if (p.getGameMode() != GameMode.SURVIVAL) p.setGameMode(GameMode.SURVIVAL);
             }
             if (!prematchSidebarSet) {
                 this.enableSidebar("prematch");
@@ -746,11 +772,18 @@ public class Match implements Listener {
                     this.redGoals = 0;
                     this.blueGoals = 0;
                     this.blueAssist.add(Bukkit.getPlayer("nobody"));
-                    this.blueAssist.add(Bukkit.getPlayer("nobody"));
+                    this.redAssist.add(Bukkit.getPlayer("nobody"));
                     this.enableSidebar("ingame");
                     for (final Player p : this.isRed.keySet()) {
+                        if (p.getAllowFlight()) p.setAllowFlight(false);
+                        if (p.getGameMode() != GameMode.SURVIVAL) p.setGameMode(GameMode.SURVIVAL);
                         this.arena = this.organization.findArena(p);
                         this.organization.playerStarts(p);
+                        List<String> longMessage = MessagesConfig.get().getStringList("startingMatchLong");
+                        for (String msg : longMessage) {
+                            msg = msg.replace("{matchType}", this.type + "v" + this.type);
+                            p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', msg));
+                        }
                     }
                 } else {
                     message = this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("continueMatch"));
@@ -848,7 +881,7 @@ public class Match implements Listener {
                             p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("1v1noStats")));
                         }
                     } else {
-                        p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tied")));
+                        p.sendMessage(this.organization.pluginString + ChatColor.translateAlternateColorCodes('&', MessagesConfig.get().getString("tied").replace("{red}", "" + this.scoreRed).replace("{blue}", "" + this.scoreBlue)));
                         if (this.takePlace.contains(p)) {
                             continue;
                         }
@@ -881,6 +914,16 @@ public class Match implements Listener {
                 this.assists.clear();
                 this._countdown = 0;
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInventoryInteract(final InventoryClickEvent event) {
+        final Player player = (Player) event.getWhoClicked();
+        if (!this.isRed.containsKey(player)) return;
+
+        if (event.getWhoClicked().getInventory().getType() == InventoryType.PLAYER) {
+            if (event.getSlotType() == InventoryType.SlotType.ARMOR) event.setCancelled(true);
         }
     }
 }

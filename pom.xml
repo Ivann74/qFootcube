@@ -15,7 +15,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spath>C:\Users\Ivan Gajic\Documents\spigot-1.8.8-R0.1-SNAPSHOT-latest.jar</spath>
+        <spath>/home/neon/Other/Downloads/FlamePaper(1).jar</spath>
     </properties>
 
     <build>
@@ -166,9 +166,16 @@
             <version>1.8.1</version>
         </dependency>
         <dependency>
-            <groupId>com.github.ConnorLinfoot</groupId>
-            <artifactId>TitleAPI</artifactId>
-            <version>1.8.1</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.arcaniax</groupId>
+            <artifactId>HeadDatabase-API</artifactId>
+            <version>1.3.2</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

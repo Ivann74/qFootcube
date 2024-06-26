@@ -1,12 +1,12 @@
 package me.qajic.plugins.qfootcube.utils;
 
-import java.io.*;
+import me.qajic.plugins.qfootcube.Footcube;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-
-import me.qajic.plugins.qfootcube.Footcube;
 
 //    public static List<Footballer> getLeaderboard(List<Footballer> footballers, String type) {
 //        switch (type.toLowerCase()) {
@@ -33,11 +33,7 @@ import me.qajic.plugins.qfootcube.Footcube;
 //
 //        return footballers;
 //    }
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.IOException;
-import java.util.*;
 
 public class Leaderboard {
     private final Footcube plugin;
@@ -56,18 +52,22 @@ public class Leaderboard {
         if (files != null) {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".yml")) {
-                    UUID uuid = UUID.fromString(file.getName().split("\\.")[0]);
-                    if(this.plugin.organization.uuidConverter.hasValue(uuid)) {
-                        PlayerDataManager playerData = new PlayerDataManager(this.plugin, uuid);
-                        Footballer footballer = new Footballer();
-                        footballer.setUsername(this.plugin.organization.uuidConverter.getKey(uuid));
-                        footballer.setGoals(playerData.getInt("goals"));
-                        footballer.setAssists(playerData.getInt("assists"));
-                        footballer.setTies(playerData.getInt("ties"));
-                        footballer.setMatches(playerData.getInt("matches"));
-                        footballer.setWins(playerData.getInt("wins"));
-                        footballer.setBestWinStreak(playerData.getInt("best_win_streak"));
-                        footballers.add(footballer);
+                    try {
+                        UUID uuid = UUID.fromString(file.getName().split("\\.")[0]);
+                        if(this.plugin.organization.uuidConverter.hasValue(uuid)) {
+                            PlayerDataManager playerData = new PlayerDataManager(this.plugin, uuid);
+                            Footballer footballer = new Footballer();
+                            footballer.setUsername(this.plugin.organization.uuidConverter.getKey(uuid));
+                            footballer.setGoals(playerData.getInt("goals"));
+                            footballer.setAssists(playerData.getInt("assists"));
+                            footballer.setTies(playerData.getInt("ties"));
+                            footballer.setMatches(playerData.getInt("matches"));
+                            footballer.setWins(playerData.getInt("wins"));
+                            footballer.setBestWinStreak(playerData.getInt("best_win_streak"));
+                            footballers.add(footballer);
+                        }
+                    } catch (IllegalArgumentException exception) {
+                        plugin.getLogger().info("UUID not found.");
                     }
                 }
             }

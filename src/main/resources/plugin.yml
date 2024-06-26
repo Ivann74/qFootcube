@@ -23,3 +23,15 @@ commands:
     description: enable / disable commands in a match
   reload:
     description: Reloads messages config
+  1v1:
+    description: join 1v1
+  2v2:
+    description: join 2v2
+  3v3:
+    description: join 3v3
+  4v4:
+    description: join 4v4
+  5v5:
+    description: join 5v5
+  abjuz:
+    description: ne pitaj

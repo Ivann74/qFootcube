@@ -6,7 +6,14 @@ import me.qajic.plugins.qfootcube.configuration.MessagesConfig;
 import me.qajic.plugins.qfootcube.features.Statistics;
 import me.qajic.plugins.qfootcube.utils.PlayerDataManager;
 import me.qajic.plugins.qfootcube.utils.UUIDConverter;
+import net.minecraft.server.v1_8_R3.ItemArmor;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -377,8 +384,8 @@ public class Organization implements Listener
     }
     
     public void playerStarts(final Player p) {
-            this.waitingPlayers.remove(p.getName());
-            this.playingPlayers.add(p.getName());
+        this.waitingPlayers.remove(p.getName());
+        this.playingPlayers.add(p.getName());
     }
     
     public void ballTouch(final Player p) {
